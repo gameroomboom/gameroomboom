@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Don't Stop Talking</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f0ff;--surface:#ffffff;--ink:#1b1740;--muted:#6a649a;--line:#ddd6f7;
+  --up:#14b874;--down:#f0405a;--gold:#ffcf3f;--pink:#ff6b9d;--shadow:0 6px 0 rgba(27,23,64,.12);
+  --f:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1b1740;--surface:#262063;--ink:#fff7e8;--muted:#b3acd9;--line:#3b3490;
+    --up:#3ddc97;--down:#ff5d73;--shadow:0 6px 0 rgba(0,0,0,.28);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f);font-weight:500;min-height:100vh;padding:28px 16px 150px;overflow-x:hidden}
+main{max-width:720px;margin:0 auto;text-align:center}
+.hidden{display:none!important}
+h1{font-size:clamp(2.3rem,9vw,4.2rem);margin:0;font-weight:800;letter-spacing:-.03em;line-height:1}
+.sub{color:var(--muted);font-size:1.1rem;margin:12px auto 22px;max-width:46ch}
+.warn{background:var(--surface);border:3px dashed var(--down);border-radius:16px;padding:12px 16px;margin:0 auto 24px;max-width:520px;font-size:.95rem}
+.err{color:var(--down);font-weight:800;min-height:1.4em;margin:14px 0 0}
+.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn{background:var(--up);color:#0d2b1d;border:none;border-radius:14px;padding:14px 28px;font:inherit;font-weight:800;font-size:1.15rem;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.2);text-decoration:none;display:inline-block}
+.btn.gold{background:var(--gold);color:#1b1740}
+.btn.ghost{background:transparent;color:var(--ink);border:3px solid var(--ink);box-shadow:none;padding:11px 24px}
+.btn:hover{filter:brightness(1.07)}
+.btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+.top{position:absolute;left:16px;top:16px;font-weight:800;color:var(--muted);text-decoration:underline}
+.mic{font-size:4rem;margin-bottom:6px}
+
+/* play */
+.stats{display:flex;gap:10px;justify-content:center;margin-bottom:20px}
+.pill{background:var(--surface);border:3px solid var(--line);border-radius:999px;padding:6px 18px;font-weight:800}
+.pill em{font-style:normal;color:var(--muted);font-weight:500;margin-right:6px}
+#big{font-size:clamp(2.2rem,9vw,4.5rem);font-weight:800;line-height:1.05;margin:18px 0 10px;letter-spacing:-.02em}
+#topic{background:var(--gold);color:#1b1740;display:inline-block;border-radius:18px;padding:14px 22px;font-size:1.25rem;font-weight:800;box-shadow:var(--shadow);max-width:90%}
+.timer{font-size:clamp(3rem,13vw,6rem);font-weight:800;font-variant-numeric:tabular-nums;line-height:1;margin:22px 0 6px}
+.over .big{font-size:5rem;font-weight:800;color:var(--pink);line-height:1.1;margin:10px 0}
+
+/* voice meter */
+.meter{position:fixed;left:0;right:0;bottom:0;z-index:60;background:var(--surface);border-top:4px solid var(--line);padding:12px 16px 16px}
+.mwrap{max-width:720px;margin:0 auto}
+.mrow{display:flex;align-items:center;gap:12px;font-weight:800}
+#mstate{min-width:9.5em;text-align:left}
+.track{position:relative;flex:1;height:26px;border-radius:999px;background:var(--bg);border:3px solid var(--line);overflow:hidden}
+.fill{height:100%;width:0;background:var(--up);border-radius:999px}
+.thr{position:absolute;top:0;bottom:0;width:4px;background:var(--ink);opacity:.7}
+.danger{height:10px;border-radius:999px;background:var(--bg);margin-top:10px;overflow:hidden}
+#dbar{height:100%;width:100%;background:var(--down);border-radius:999px}
+
+/* settings */
+dialog{background:var(--surface);color:var(--ink);border:4px solid var(--line);border-radius:24px;width:calc(100% - 32px);max-width:480px;padding:22px;font-family:var(--f);font-weight:500}
+dialog::backdrop{background:rgba(10,8,30,.65)}
+dialog h2{margin:0 0 14px;font-size:1.6rem;font-weight:800}
+.set{margin:0 0 16px;text-align:left}
+.set label{display:flex;justify-content:space-between;font-weight:800;margin-bottom:6px}
+.set output{color:var(--muted)}
+.set input[type=range]{width:100%;accent-color:var(--pink)}
+.set select{width:100%;font:inherit;font-weight:800;padding:10px;border-radius:12px;border:3px solid var(--line);background:var(--bg);color:var(--ink)}
+.chk{display:flex;align-items:center;gap:10px;font-weight:800;padding:6px 0;text-align:left}
+.chk input{width:22px;height:22px;accent-color:var(--pink)}
+.test{margin:14px 0 18px;text-align:left}
+.test .track{margin-top:8px}
+
+/* chaos layer */
+.pop{position:fixed;z-index:40;width:min(260px,70vw);border:4px solid #1b1740;border-radius:12px;padding:12px 14px 14px;text-align:left;color:#1b1740;box-shadow:6px 6px 0 rgba(0,0,0,.35)}
+.pop h3{margin:0 0 4px;font-size:1.2rem;font-weight:800;padding-right:24px}
+.pop p{margin:0 0 10px;font-size:.95rem;line-height:1.25}
+.pop .go{display:inline-block;background:#1b1740;color:#fff;border-radius:8px;padding:6px 14px;font-weight:800;font-size:.9rem}
+.pop .x{position:absolute;right:6px;top:4px;border:none;background:none;font-size:1.3rem;font-weight:800;cursor:pointer;color:#1b1740}
+.emo{position:fixed;z-index:41;font-size:2.4rem;pointer-events:none;left:var(--x);top:var(--y)}
+.banner{position:fixed;left:0;right:0;z-index:42;white-space:nowrap;font-size:2.4rem;font-weight:800;padding:6px 0;color:#1b1740;pointer-events:none;overflow:hidden}
+.flashfx{position:fixed;inset:0;z-index:39;opacity:.45;pointer-events:none}
+.toast{position:fixed;right:12px;top:12px;z-index:43;background:#1b1740;color:#fff;border-radius:14px;padding:12px 16px;font-weight:800;box-shadow:0 6px 0 rgba(0,0,0,.3);max-width:80vw}
+
+@media (prefers-reduced-motion:no-preference){
+  .pop{animation:pin .25s ease-out,wig .5s ease-in-out .25s infinite alternate}
+  @keyframes pin{from{transform:scale(.2) rotate(-30deg)}}
+  @keyframes wig{from{translate:-3px 0}to{translate:3px 0}}
+  .emo{animation:fly 1.5s ease-out forwards}
+  @keyframes fly{to{transform:translate(var(--dx),var(--dy)) rotate(var(--r));opacity:0}}
+  .banner span{display:inline-block;animation:run 2.6s linear forwards}
+  @keyframes run{from{transform:translateX(100vw)}to{transform:translateX(-120%)}}
+  .flashfx{animation:fl .4s ease-out forwards}
+  @keyframes fl{from{opacity:.5}to{opacity:0}}
+  .toast{animation:tin .3s ease-out}
+  @keyframes tin{from{transform:translateX(120%)}}
+  body.shake main{animation:sh .5s}
+  @keyframes sh{20%,60%{transform:translate(-10px,6px) rotate(-1deg)}40%,80%{transform:translate(10px,-6px) rotate(1deg)}}
+  .mic.live{animation:pulse 1s infinite}
+  @keyframes pulse{50%{transform:scale(1.15)}}
+}
+</style>
+</head>
+<body>
+<a class="top" href="index.html">&larr; Home</a>
+<main>
+
+  <!-- Start -->
+  <section id="start">
+    <div class="mic" aria-hidden="true">&#127908;</div>
+    <h1>Don't stop talking</h1>
+    <p class="sub">Talk non-stop into your microphone. If you go quiet for too long, you lose. Popups will try to make you shut up.</p>
+    <div class="warn"><b>Warning:</b> flashing colors, loud bleeps and chaos. Turn flashing and sounds off in Settings if that bothers you. Headphones help the game hear only you.</div>
+    <div class="row">
+      <button class="btn" id="playBtn">Start talking</button>
+      <button class="btn ghost" id="setBtn">&#9881; Settings</button>
+    </div>
+    <p class="sub" id="micStatus" style="margin:14px auto 0;font-weight:800"></p>
+    <p class="err" id="err" role="alert"></p>
+    <p class="sub" style="font-size:.95rem">Best: <b id="bestStart">0.0</b> s</p>
+  </section>
+
+  <!-- Play -->
+  <section id="play" class="hidden">
+    <div class="stats"><span class="pill"><em>Best</em><span id="bestPlay">0.0</span> s</span><button class="btn ghost" id="quit" style="padding:4px 16px;font-size:1rem">Quit</button></div>
+    <div id="big">3</div>
+    <div class="timer" id="timer">0.0</div>
+    <div id="topic" class="hidden"></div>
+  </section>
+
+  <!-- Over -->
+  <section id="over" class="over hidden">
+    <h1>You went quiet!</h1>
+    <div class="big"><span id="finalTime">0.0</span> s</div>
+    <p class="sub" id="finalNote"></p>
+    <div class="row">
+      <button class="btn" id="again">Play again</button>
+      <button class="btn ghost" id="setBtn2">&#9881; Settings</button>
+      <a class="btn ghost" href="index.html">Home</a>
+    </div>
+  </section>
+</main>
+
+<!-- Voice meter (bottom) -->
+<div class="meter hidden" id="meter" aria-label="Voice meter">
+  <div class="mwrap">
+    <div class="mrow"><span id="mstate">&#127908; Say something</span>
+      <div class="track"><div class="fill" id="fill"></div><div class="thr" id="thr"></div></div></div>
+    <div class="danger" title="Time until you lose"><div id="dbar"></div></div>
+  </div>
+</div>
+
+<!-- Settings -->
+<dialog id="dlg">
+  <h2>Settings</h2>
+  <div class="set"><label for="sens">Mic sensitivity <output id="sensO"></output></label>
+    <input type="range" id="sens" min="0" max="100" step="1"></div>
+  <div class="set"><label for="grace">Silence allowed <output id="graceO"></output></label>
+    <input type="range" id="grace" min="0.5" max="5" step="0.5"></div>
+  <div class="set"><label for="inten">Popup chaos</label>
+    <select id="inten"><option value="chill">Chill</option><option value="normal">Normal</option><option value="chaos">Total chaos</option></select></div>
+  <label class="chk"><input type="checkbox" id="popups"> Random popups</label>
+  <label class="chk"><input type="checkbox" id="ramp"> Chaos grows the longer you talk</label>
+  <label class="chk"><input type="checkbox" id="flash"> Flashing screen effects</label>
+  <label class="chk"><input type="checkbox" id="sound"> Sound effects</label>
+  <div class="test">
+    <button class="btn gold" id="testBtn" style="padding:8px 18px;font-size:1rem">Test microphone</button>
+    <div class="track"><div class="fill" id="tfill"></div><div class="thr" id="tthr"></div></div>
+    <small style="color:var(--muted)">The line is your threshold. Your voice should go past it.</small>
+  </div>
+  <div class="row"><button class="btn ghost" id="reset">Reset</button><button class="btn" id="done">Done</button></div>
+</dialog>
+
+<script>
+const $ = id => document.getElementById(id);
+const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const DEF = { sens:60, grace:2, inten:"normal", popups:true, ramp:true, flash:!REDUCE, sound:true };
+let S = Object.assign({}, DEF);
+try{ Object.assign(S, JSON.parse(localStorage.getItem("dst_settings") || "{}")); }catch(e){}
+const save = () => { try{ localStorage.setItem("dst_settings", JSON.stringify(S)); }catch(e){} };
+let best = 0;
+try{ best = +localStorage.getItem("dst_best") || 0; }catch(e){}
+const rnd = (a,b) => a + Math.random()*(b-a);
+const pick = a => a[Math.floor(Math.random()*a.length)];
+
+/* ---------- audio (mic + sound effects) ---------- */
+let actx = null, stream = null, an = null, buf = null, level = 0;
+function ctx(){ try{ actx = actx || new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume(); }catch(e){} return actx; }
+async function startMic(){
+  if(stream) return true;
+  try{
+    stream = await navigator.mediaDevices.getUserMedia({ audio:{ echoCancellation:true, noiseSuppression:true, autoGainControl:true } });
+    const c = ctx(), src = c.createMediaStreamSource(stream);
+    an = c.createAnalyser(); an.fftSize = 1024; buf = new Uint8Array(an.fftSize); src.connect(an);
+    return true;
+  }catch(e){ stream = null; an = null; return false; }
+}
+function stopMic(){ if(stream) stream.getTracks().forEach(t=>t.stop()); stream = null; an = null; level = 0; }
+function readLevel(){
+  if(!an){ level = 0; return; }
+  an.getByteTimeDomainData(buf);
+  let sum = 0; for(let i=0;i<buf.length;i++){ const v=(buf[i]-128)/128; sum += v*v; }
+  const raw = Math.min(1, Math.sqrt(sum/buf.length)*5);
+  level = raw > level ? raw : level*0.93;
+}
+const thr = () => 0.4 - S.sens*0.0037;
+function tone(f,t0,d,type,v){
+  const c = ctx(); if(!c) return; const t = c.currentTime + t0, o = c.createOscillator(), g = c.createGain();
+  o.type = type||"square"; o.frequency.setValueAtTime(f,t); g.gain.setValueAtTime(v||.05,t); g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+d+.02);
+}
+function sfx(n){
+  if(!S.sound) return;
+  if(n==="beep") tone(660,0,.12,"triangle",.1);
+  else if(n==="go") [523,784].forEach((f,i)=>tone(f,i*.1,.2,"triangle",.1));
+  else if(n==="pop") tone(rnd(300,1400),0,.09,pick(["square","sawtooth","triangle"]),.05);
+  else if(n==="lose"){ tone(220,0,.25,"sawtooth",.09); tone(165,.2,.3,"sawtooth",.09); tone(110,.42,.5,"sawtooth",.09); }
+}
+
+/* ---------- chaos effects ---------- */
+const COLORS = ["#ffcf3f","#ff6b9d","#5ec8ff","#3ddc97","#ffb347","#b28dff","#c6ff5e","#7cf0ff"];
+const ADS = [
+ ["YOU WON!!!","You are visitor number 1,000,000. Keep talking to claim nothing."],
+ ["FREE CAT","Adopt a free cat today. Terms: the cat is imaginary."],
+ ["BREAKING NEWS","Local pigeon does something unbelievable."],
+ ["DOWNLOAD MORE RAM","Your browser looks thirsty. Fill it now!"],
+ ["HOT SOUP NEAR YOU","Soup lovers are 0.3 km away."],
+ ["SPIN THE WHEEL","Spin to win absolutely nothing."],
+ ["WARNING","Your fridge is running. Go and catch it."],
+ ["SUBSCRIBE","Like, share and keep talking."],
+ ["LIMITED OFFER","Buy 1 air, get 1 air free."],
+ ["DID YOU KNOW?","Bananas are berries. Strawberries are not. Keep talking!"],
+ ["CONGRATULATIONS","You have been selected to keep talking."],
+ ["TOO QUIET?","Say literally anything."]
+];
+const TOASTS = ["\uD83D\uDCDE Mom is calling","\uD83C\uDF55 Your pizza has arrived","\uD83D\uDCC5 Meeting starts now","\uD83D\uDD0B Battery at 1%","\u2764\uFE0F Someone liked your photo","\uD83D\uDCE6 Your package is outside","\uD83D\uDD14 Don't forget to breathe"];
+const EMOJIS = ["\uD83C\uDF89","\uD83D\uDD25","\uD83D\uDE02","\uD83D\uDC80","\u2B50","\uD83C\uDF55","\uD83D\uDC31","\uD83C\uDF08","\uD83D\uDCA5","\uD83E\uDD2A"];
+const BANNERS = ["KEEP TALKING!!!","DON'T STOP!!!","BLAH BLAH BLAH","SAY SOMETHING!","YAP YAP YAP","NO SILENCE ALLOWED"];
+const TOPICS = ["Describe your morning","Tell a story about a pet","Explain your favorite food","Describe your bedroom","Plan a dream vacation","Retell a movie you love","List everything in your bag","Explain how to make a sandwich","Describe your best friend","Talk about your weirdest dream","Name every animal you can think of","Describe the weather outside"];
+let lastFlash = 0;
+function add(el, ms){ document.body.appendChild(el); setTimeout(()=>el.remove(), ms); return el; }
+function windowPop(){
+  document.querySelectorAll(".pop").forEach((p,i,all)=>{ if(all.length>=7 && i===0) p.remove(); });
+  const [t,b] = pick(ADS), d = document.createElement("div");
+  d.className = "pop"; d.style.background = pick(COLORS);
+  d.style.left = rnd(2,62)+"vw"; d.style.top = rnd(8,58)+"vh"; d.style.rotate = rnd(-8,8)+"deg";
+  d.innerHTML = '<button class="x" aria-label="Close">&times;</button><h3></h3><p></p><span class="go">CLAIM NOW</span>';
+  d.querySelector("h3").textContent = t; d.querySelector("p").textContent = b;
+  d.querySelector(".x").onclick = () => d.remove();
+  add(d, rnd(2200,4800));
+}
+function emojiBurst(){
+  for(let i=0;i<12;i++){
+    const e = document.createElement("div"); e.className = "emo"; e.textContent = pick(EMOJIS);
+    e.style.setProperty("--x", "50vw"); e.style.setProperty("--y", rnd(25,55)+"vh");
+    e.style.setProperty("--dx", rnd(-45,45)+"vw"); e.style.setProperty("--dy", rnd(-35,35)+"vh"); e.style.setProperty("--r", rnd(-540,540)+"deg");
+    add(e, 1600);
+  }
+}
+function banner(){
+  const d = document.createElement("div"); d.className = "banner"; d.style.top = rnd(10,60)+"vh"; d.style.background = pick(COLORS);
+  d.innerHTML = "<span></span>"; d.firstChild.textContent = pick(BANNERS) + "  " + pick(EMOJIS) + "  " + pick(BANNERS);
+  add(d, 2700);
+}
+function flashFx(){
+  const now = performance.now(); if(!S.flash || now - lastFlash < 500) return windowPop();
+  lastFlash = now; const d = document.createElement("div"); d.className = "flashfx"; d.style.background = pick(COLORS); add(d, 450);
+}
+function toast(){ const d = document.createElement("div"); d.className = "toast"; d.textContent = pick(TOASTS); add(d, 2200); }
+function shake(){ if(REDUCE) return windowPop(); document.body.classList.add("shake"); setTimeout(()=>document.body.classList.remove("shake"), 520); }
+function spawn(){
+  const r = Math.random();
+  sfx("pop");
+  if(r<.45) windowPop(); else if(r<.6) emojiBurst(); else if(r<.72) banner(); else if(r<.84) flashFx(); else if(r<.93) toast(); else shake();
+}
+function clearFx(){ document.querySelectorAll(".pop,.emo,.banner,.flashfx,.toast").forEach(e=>e.remove()); }
+function gap(talked){
+  const [a,b] = { chill:[2500,4500], normal:[1100,2600], chaos:[300,1000] }[S.inten];
+  const k = S.ramp ? Math.max(.35, 1 - talked/90) : 1;
+  return rnd(a,b)*k;
+}
+
+/* ---------- game ---------- */
+let mode = "idle", tStart = 0, lastT = 0, silent = 0, nextPop = 0, nextTopic = 0, cdTimer = 0;
+function show(id){ ["start","play","over"].forEach(s=>$(s).classList.toggle("hidden", s!==id)); $("meter").classList.toggle("hidden", id!=="play"); }
+function paintBest(){ const t = best.toFixed(1); $("bestStart").textContent = t; $("bestPlay").textContent = t; }
+function paintMeter(f,t,state){
+  $(f).style.width = (level*100)+"%";
+  $(f).style.background = level > thr() ? "var(--up)" : "var(--gold)";
+  $(t).style.left = (thr()*100)+"%";
+}
+function setTopic(){ $("topic").textContent = "Talk about: " + pick(TOPICS); $("topic").classList.remove("hidden"); }
+
+async function begin(){
+  $("err").textContent = "";
+  ctx();
+  if(!(await startMic())){ $("err").textContent = "Could not use the microphone. Allow mic access in your browser. The page must be opened over https or localhost."; return; }
+  show("play"); clearFx(); mode = "count"; $("topic").classList.add("hidden"); $("timer").textContent = "0.0";
+  let n = 3; $("big").textContent = n; sfx("beep");
+  clearInterval(cdTimer);
+  cdTimer = setInterval(()=>{
+    n--;
+    if(n>0){ $("big").textContent = n; sfx("beep"); }
+    else { clearInterval(cdTimer); $("big").textContent = "TALK!"; sfx("go"); mode = "run"; tStart = lastT = performance.now(); silent = 0; nextPop = tStart + 2500; nextTopic = tStart + 9000; setTopic(); }
+  }, 800);
+}
+function lose(talked){
+  mode = "over"; clearInterval(cdTimer); sfx("lose"); stopMic();
+  const isBest = talked > best;
+  if(isBest){ best = talked; try{ localStorage.setItem("dst_best", best); }catch(e){} }
+  $("finalTime").textContent = talked.toFixed(1);
+  $("finalNote").textContent = isBest ? "New best time! \uD83C\uDFC6" : "Best: " + best.toFixed(1) + " s";
+  paintBest(); show("over");
+  setTimeout(clearFx, 1500);
+}
+function quit(){ mode = "idle"; clearInterval(cdTimer); stopMic(); clearFx(); show("start"); }
+
+function frame(now){
+  requestAnimationFrame(frame);
+  readLevel();
+  if(!$("meter").classList.contains("hidden")) paintMeter("fill","thr");
+  if($("dlg").open) paintMeter("tfill","tthr");
+  if(mode !== "run") return;
+  const dt = (now - lastT)/1000; lastT = now;
+  const talking = level > thr();
+  silent = talking ? 0 : silent + dt;
+  const talked = (now - tStart)/1000;
+  $("timer").textContent = talked.toFixed(1);
+  $("dbar").style.width = Math.max(0, (1 - silent/S.grace)*100) + "%";
+  $("mstate").textContent = talking ? "\uD83C\uDF99\uFE0F Talking" : "\uD83E\uDD2B Quiet " + Math.max(0, S.grace - silent).toFixed(1);
+  $("big").textContent = talking ? "KEEP GOING!" : "TALK!!!";
+  if(silent >= S.grace) return lose(talked);
+  if(S.popups && now >= nextPop){ spawn(); nextPop = now + gap(talked); }
+  if(now >= nextTopic){ setTopic(); nextTopic = now + 9000; }
+}
+requestAnimationFrame(frame);
+
+/* ---------- settings ---------- */
+function paintSettings(){
+  $("sens").value = S.sens; $("grace").value = S.grace; $("inten").value = S.inten;
+  ["popups","ramp","flash","sound"].forEach(k => $(k).checked = S[k]);
+  $("sensO").textContent = S.sens + "%"; $("graceO").textContent = S.grace + " s";
+}
+function openSettings(){ paintSettings(); $("testBtn").textContent = stream ? "Stop test" : "Test microphone"; $("dlg").showModal(); }
+$("sens").oninput = e => { S.sens = +e.target.value; $("sensO").textContent = S.sens + "%"; save(); };
+$("grace").oninput = e => { S.grace = +e.target.value; $("graceO").textContent = S.grace + " s"; save(); };
+$("inten").onchange = e => { S.inten = e.target.value; save(); };
+["popups","ramp","flash","sound"].forEach(k => $(k).onchange = e => { S[k] = e.target.checked; save(); });
+$("testBtn").onclick = async () => {
+  if(stream){ stopMic(); $("testBtn").textContent = "Test microphone"; return; }
+  const ok = await startMic(); $("testBtn").textContent = ok ? "Stop test" : "Mic blocked";
+};
+$("reset").onclick = () => { S = Object.assign({}, DEF); save(); paintSettings(); };
+$("done").onclick = () => $("dlg").close();
+$("dlg").addEventListener("close", () => { if(mode !== "run" && mode !== "count") stopMic(); });
+$("setBtn").onclick = openSettings; $("setBtn2").onclick = openSettings;
+$("playBtn").onclick = begin; $("again").onclick = begin; $("quit").onclick = quit;
+paintBest();
+
+/* ---------- ask for the microphone when the page opens ---------- */
+async function askMic(){
+  const st = $("micStatus");
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ st.textContent = "This browser can't use a microphone here."; return; }
+  st.textContent = "Please click Allow when your browser asks for the microphone.";
+  try{
+    const tmp = await navigator.mediaDevices.getUserMedia({ audio:true });
+    tmp.getTracks().forEach(t => t.stop());
+    st.textContent = "\uD83C\uDF99\uFE0F Microphone ready";
+    st.style.color = "var(--up)";
+  }catch(e){
+    st.style.color = "var(--down)";
+    st.textContent = "Microphone blocked. Click the lock icon in the address bar, allow the microphone, then reload.";
+  }
+}
+askMic();
+</script>
+</body>
+</html>
