@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>I Spy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
+<style>
+:root{
+  --bg:#f4f0ff;--surface:#ffffff;--ink:#1b1740;--muted:#6a649a;--line:#ddd6f7;
+  --up:#14b874;--down:#f0405a;--gold:#ffcf3f;--pink:#ff6b9d;--shadow:0 6px 0 rgba(27,23,64,.12);
+  --f:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1b1740;--surface:#262063;--ink:#fff7e8;--muted:#b3acd9;--line:#3b3490;
+    --up:#3ddc97;--down:#ff5d73;--shadow:0 6px 0 rgba(0,0,0,.28);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f);font-weight:500;min-height:100vh;padding:56px 16px 40px}
+main{max-width:760px;margin:0 auto}
+.hidden{display:none!important}
+.top{position:absolute;left:16px;top:16px;font-weight:800;color:var(--muted);text-decoration:underline}
+h1{font-size:clamp(2.2rem,8vw,3.6rem);margin:0 0 4px;font-weight:800;letter-spacing:-.03em;text-align:center}
+.sub{color:var(--muted);text-align:center;margin:0 auto 20px;max-width:46ch}
+.bar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
+.pill{background:var(--surface);border:3px solid var(--line);border-radius:999px;padding:6px 16px;font-weight:800}
+.pill em{font-style:normal;color:var(--muted);font-weight:500;margin-right:6px}
+.btn{background:var(--up);color:#0d2b1d;border:none;border-radius:14px;padding:12px 24px;font:inherit;font-weight:800;font-size:1.05rem;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.2)}
+.btn.gold{background:var(--gold);color:#1b1740}
+.btn.ghost{background:transparent;color:var(--ink);border:3px solid var(--ink);box-shadow:none;padding:9px 20px}
+.btn:disabled{opacity:.45;cursor:default}
+.btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+.btn:not(:disabled):active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}
+
+/* robot + bubble */
+.botrow{display:flex;gap:14px;align-items:center;margin-bottom:18px}
+.robot{width:110px;flex:none;overflow:visible}
+.robot *{stroke:var(--ink)}
+.bubble{position:relative;flex:1;background:var(--surface);border:4px solid var(--line);border-radius:20px;padding:16px 18px;font-size:1.25rem;font-weight:800;line-height:1.3;min-height:84px;box-shadow:var(--shadow)}
+.bubble::before{content:"";position:absolute;left:-14px;top:34px;width:22px;height:22px;background:var(--surface);border-left:4px solid var(--line);border-bottom:4px solid var(--line);transform:rotate(45deg)}
+.bubble small{display:block;margin-top:6px;color:var(--muted);font-weight:500;font-size:.9rem}
+
+/* picture */
+.stage{position:relative;background:var(--surface);border:4px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);min-height:220px;display:grid;place-items:center}
+.stage img{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain}
+.ov{position:absolute;inset:0;cursor:crosshair}
+.mark{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;font-size:1.2rem;pointer-events:none}
+.mark.ok{background:var(--up)}.mark.no{background:var(--down)}
+.box{position:absolute;border:4px solid var(--gold);border-radius:6px;box-shadow:0 0 0 2px rgba(0,0,0,.5);pointer-events:none}
+.box b{position:absolute;left:-4px;top:-28px;background:var(--gold);color:#1b1740;padding:2px 8px;border-radius:6px;font-size:.85rem}
+.load{padding:50px 16px;text-align:center;color:var(--muted);font-weight:800}
+.credit{font-size:.8rem;color:var(--muted);text-align:center;margin-top:8px}
+.credit a{color:inherit}
+.final{background:var(--surface);border:4px solid var(--line);border-radius:20px;padding:26px 16px;text-align:center;box-shadow:var(--shadow)}
+.final .big{font-size:4rem;font-weight:800;color:var(--pink);line-height:1.1}
+.err{color:var(--down);font-weight:800;text-align:center;margin-top:12px}
+
+@media (max-width:520px){.robot{width:80px}.bubble{font-size:1.05rem;padding:12px 14px}}
+@media (prefers-reduced-motion:no-preference){
+  .eye{transform-box:fill-box;transform-origin:center;animation:blink 4.5s infinite}
+  @keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+  .ant{animation:glow 1.2s infinite alternate}
+  @keyframes glow{to{fill:#ffcf3f}}
+  .talk #mouth{transform-box:fill-box;transform-origin:center;animation:yap .22s infinite alternate}
+  @keyframes yap{to{transform:scaleY(2.6)}}
+  .mark{animation:pop .3s ease-out}
+  @keyframes pop{from{transform:scale(.2)}}
+  .robot{animation:bob 2.4s ease-in-out infinite alternate}
+  @keyframes bob{to{translate:0 -6px}}
+}
+</style>
+</head>
+<body>
+<a class="top" href="index.html">&larr; Home</a>
+<main>
+  <h1>I spy</h1>
+  <p class="sub">The robot spies something in a photo. Find it and click on it before you run out of tries.</p>
+
+  <div class="bar">
+    <span class="pill"><em>Round</em><span id="round">0</span>/5</span>
+    <span class="pill"><em>Score</em><span id="score">0</span></span>
+    <span class="pill"><em>Tries</em><span id="tries">3</span></span>
+    <button class="btn ghost" id="snd" style="padding:4px 14px" aria-label="Toggle sound">&#128266;</button>
+  </div>
+
+  <div class="botrow" id="bot">
+    <svg class="robot" viewBox="0 0 140 160" aria-hidden="true">
+      <line x1="70" y1="12" x2="70" y2="30" stroke-width="5"/>
+      <circle class="ant" cx="70" cy="9" r="7" fill="#ff6b9d" stroke-width="4"/>
+      <rect x="8" y="58" width="12" height="28" rx="5" fill="#ffcf3f" stroke-width="4"/>
+      <rect x="120" y="58" width="12" height="28" rx="5" fill="#ffcf3f" stroke-width="4"/>
+      <rect x="20" y="30" width="100" height="82" rx="22" fill="#5ec8ff" stroke-width="5"/>
+      <circle class="eye" cx="50" cy="66" r="16" fill="#fff" stroke-width="4"/>
+      <circle class="eye" cx="90" cy="66" r="16" fill="#fff" stroke-width="4"/>
+      <circle id="pl" cx="50" cy="66" r="7" fill="#1b1740" stroke="none"/>
+      <circle id="pr" cx="90" cy="66" r="7" fill="#1b1740" stroke="none"/>
+      <rect id="mouth" x="52" y="93" width="36" height="7" rx="3.5" fill="#1b1740" stroke="none"/>
+      <rect x="35" y="118" width="70" height="38" rx="12" fill="#ffcf3f" stroke-width="5"/>
+      <circle cx="70" cy="137" r="6" fill="#ff6b9d" stroke-width="3"/>
+    </svg>
+    <div class="bubble"><span id="say">Hi! I'm Spyro the robot. Ready to play?</span><small id="hint"></small></div>
+  </div>
+
+  <div id="startBox" class="row"><button class="btn" id="startBtn">Start game</button></div>
+
+  <div id="game" class="hidden">
+    <div class="stage" id="stage"></div>
+    <div class="credit" id="credit"></div>
+    <div class="row">
+      <button class="btn gold" id="hintBtn">Hint (-1 point)</button>
+      <button class="btn ghost" id="skipBtn">Give up</button>
+      <button class="btn hidden" id="nextBtn">Next round</button>
+    </div>
+  </div>
+
+  <div id="final" class="final hidden">
+    <div>Final score</div><div class="big"><span id="fs">0</span> / 15</div>
+    <p id="fnote" class="sub"></p>
+    <button class="btn" id="again">Play again</button>
+  </div>
+  <p class="err" id="err" role="alert"></p>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const ROUNDS = 5;
+const QUERIES = ["dog in park","street scene","kitchen interior","living room","city bus","bicycle on street","cat sitting","bowl of fruit","breakfast table","airport","railway station","farm animals","horse in field","office desk","bedroom","market stall","parking lot cars","birthday party","picnic","playground","zoo","beach people","restaurant table","kids playing"];
+let model = null, round = 0, score = 0, cur = null, wrong = 0, hints = 0, sound = true, busy = false, typer = 0;
+
+/* ---------- sound + robot voice ---------- */
+let ac = null;
+function tone(f,t0,d,type,v){
+  try{
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if(ac.state === "suspended") ac.resume();
+    const t = ac.currentTime + t0, o = ac.createOscillator(), g = ac.createGain();
+    o.type = type; o.frequency.setValueAtTime(f,t); g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+d+.02);
+  }catch(e){}
+}
+function sfx(n){
+  if(!sound) return;
+  if(n === "ok") [660,880,1320].forEach((f,i)=>tone(f,i*.09,.25,"triangle",.14));
+  else if(n === "no") { tone(200,0,.25,"sawtooth",.1); tone(150,.15,.3,"sawtooth",.1); }
+  else if(n === "beep") tone(900,0,.08,"square",.05);
+}
+function say(text, small){
+  clearInterval(typer); $("hint").textContent = small || "";
+  const el = $("say"), bot = $("bot"); el.textContent = "";
+  let i = 0; bot.classList.add("talk");
+  if(sound && "speechSynthesis" in window){
+    try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text.replace(/\.\.\./g,",")); u.pitch = .7; u.rate = .95; speechSynthesis.speak(u); }catch(e){}
+  }
+  typer = setInterval(()=>{ el.textContent = text.slice(0, ++i); if(i % 3 === 0) sfx("beep"); if(i >= text.length){ clearInterval(typer); bot.classList.remove("talk"); } }, 32);
+}
+$("snd").onclick = () => { sound = !sound; $("snd").innerHTML = sound ? "&#128266;" : "&#128263;"; if(!sound && "speechSynthesis" in window) speechSynthesis.cancel(); };
+document.addEventListener("pointermove", e => {
+  const r = $("pl").ownerSVGElement.getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height*.4;
+  const dx = e.clientX - cx, dy = e.clientY - cy, d = Math.hypot(dx,dy) || 1, k = Math.min(5, d/40);
+  const t = `${dx/d*k}px ${dy/d*k}px`; $("pl").style.translate = t; $("pr").style.translate = t;
+});
+
+/* ---------- find a random photo and objects in it ---------- */
+function loadImg(url){
+  return new Promise((res,rej)=>{ const im = new Image(); im.crossOrigin = "anonymous"; im.onload = () => res(im); im.onerror = rej; im.src = url; });
+}
+async function getModel(){
+  if(model) return model;
+  if(!window.cocoSsd) throw new Error("The robot brain could not load. Check your connection and reload.");
+  model = await cocoSsd.load(); return model;
+}
+async function findImage(){
+  await getModel();
+  for(let a = 0; a < 10; a++){
+    try{
+      const q = pick(QUERIES), off = Math.floor(Math.random()*80);
+      const url = "https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=30&gsroffset=" + off +
+        "&gsrsearch=" + encodeURIComponent(q + " filetype:bitmap") + "&prop=imageinfo&iiprop=url|mime&iiurlwidth=800";
+      const j = await (await fetch(url)).json();
+      const pages = Object.values((j.query && j.query.pages) || {}).filter(p => p.imageinfo && p.imageinfo[0].mime === "image/jpeg" && p.imageinfo[0].thumburl);
+      if(!pages.length) continue;
+      const ii = pick(pages).imageinfo[0], img = await loadImg(ii.thumburl);
+      const area = img.naturalWidth*img.naturalHeight;
+      const dets = (await model.detect(img)).filter(d => d.score > .6 && d.bbox[2]*d.bbox[3]/area > .015 && d.bbox[2]*d.bbox[3]/area < .7);
+      if(dets.length) return { img, dets, page: ii.descriptionurl };
+    }catch(e){}
+  }
+  throw new Error("The robot couldn't find a good picture. Please try again.");
+}
+function colorName(img, b){
+  const c = document.createElement("canvas"), w = 24, h = 24; c.width = w; c.height = h;
+  const x = c.getContext("2d"); let r = 0, g = 0, bl = 0;
+  try{
+    x.drawImage(img, b[0] + b[2]*.25, b[1] + b[3]*.25, b[2]*.5, b[3]*.5, 0, 0, w, h);
+    const d = x.getImageData(0,0,w,h).data, n = d.length/4;
+    for(let i=0;i<d.length;i+=4){ r += d[i]; g += d[i+1]; bl += d[i+2]; }
+    r /= n; g /= n; bl /= n;
+  }catch(e){ return null; }
+  const mx = Math.max(r,g,bl), mn = Math.min(r,g,bl), l = (mx+mn)/510, s = mx === mn ? 0 : (mx-mn)/(255 - Math.abs(mx+mn-255));
+  let h2 = 0; if(mx !== mn){ const d = mx-mn; h2 = mx === r ? ((g-bl)/d + 6) % 6 : mx === g ? (bl-r)/d + 2 : (r-g)/d + 4; h2 *= 60; }
+  if(l < .15) return "black"; if(l > .85) return "white"; if(s < .15) return l > .6 ? "light grey" : "grey";
+  if(h2 < 15 || h2 >= 345) return l > .7 ? "pink" : "red";
+  if(h2 < 40) return l < .4 ? "brown" : "orange"; if(h2 < 70) return "yellow"; if(h2 < 165) return "green";
+  if(h2 < 255) return "blue"; if(h2 < 300) return "purple"; return "pink";
+}
+
+/* ---------- game ---------- */
+function paint(){ $("round").textContent = round; $("score").textContent = score; $("tries").textContent = Math.max(0, 3 - wrong); }
+function setBusy(on){ busy = on; $("hintBtn").disabled = on; $("skipBtn").disabled = on; }
+async function nextRound(){
+  $("err").textContent = ""; $("nextBtn").classList.add("hidden"); $("hintBtn").classList.remove("hidden"); $("skipBtn").classList.remove("hidden");
+  if(round >= ROUNDS) return finish();
+  round++; wrong = 0; hints = 0; cur = null; paint(); setBusy(true);
+  $("game").classList.remove("hidden"); $("credit").textContent = "";
+  $("stage").innerHTML = '<div class="load">Spyro is looking for a picture...</div>';
+  try{
+    const f = await findImage(); cur = f;
+    const t = pick(f.dets); cur.target = t; cur.letter = t.class[0].toUpperCase();
+    cur.valid = f.dets.filter(d => d.class[0].toUpperCase() === cur.letter);
+    $("stage").innerHTML = ""; $("stage").appendChild(f.img);
+    const ov = document.createElement("div"); ov.className = "ov"; ov.id = "ov"; ov.onclick = clicked; $("stage").appendChild(ov);
+    $("credit").innerHTML = 'Photo from <a href="' + f.page + '" target="_blank" rel="noopener">Wikimedia Commons</a>';
+    say("I spy with my little eye... something beginning with " + cur.letter + ".", "Click on it in the picture.");
+    setBusy(false);
+  }catch(e){
+    $("stage").innerHTML = ""; $("err").textContent = e.message; say("Oh no, my circuits got tangled."); $("nextBtn").textContent = "Try again"; $("nextBtn").classList.remove("hidden"); round--;
+  }
+}
+function mark(x,y,ok){
+  const m = document.createElement("div"); m.className = "mark " + (ok ? "ok" : "no"); m.textContent = ok ? "\u2713" : "\u2715";
+  m.style.left = (x/cur.img.naturalWidth*100) + "%"; m.style.top = (y/cur.img.naturalHeight*100) + "%"; $("ov").appendChild(m);
+}
+function reveal(){
+  cur.valid.forEach(d => {
+    const b = document.createElement("div"); b.className = "box"; const n = cur.img;
+    b.style.left = d.bbox[0]/n.naturalWidth*100 + "%"; b.style.top = d.bbox[1]/n.naturalHeight*100 + "%";
+    b.style.width = d.bbox[2]/n.naturalWidth*100 + "%"; b.style.height = d.bbox[3]/n.naturalHeight*100 + "%";
+    b.innerHTML = "<b></b>"; b.firstChild.textContent = d.class; $("ov").appendChild(b);
+  });
+  $("ov").style.pointerEvents = "none"; $("hintBtn").classList.add("hidden"); $("skipBtn").classList.add("hidden");
+  $("nextBtn").textContent = round >= ROUNDS ? "See results" : "Next round"; $("nextBtn").classList.remove("hidden");
+}
+function clicked(e){
+  if(busy || !cur) return;
+  const r = $("ov").getBoundingClientRect(), x = (e.clientX - r.left)*cur.img.naturalWidth/r.width, y = (e.clientY - r.top)*cur.img.naturalHeight/r.height;
+  const pad = Math.max(cur.img.naturalWidth, cur.img.naturalHeight)*.015;
+  const hit = cur.valid.some(d => x >= d.bbox[0]-pad && x <= d.bbox[0]+d.bbox[2]+pad && y >= d.bbox[1]-pad && y <= d.bbox[1]+d.bbox[3]+pad);
+  mark(x,y,hit);
+  if(hit){
+    const pts = Math.max(1, 3 - wrong - hints); score += pts; paint(); sfx("ok");
+    say("Yes! That's the " + cur.target.class + "! You got " + pts + " point" + (pts > 1 ? "s" : "") + ".");
+    reveal();
+  } else {
+    wrong++; paint(); sfx("no");
+    if(wrong >= 3){ say("Out of tries! It was the " + cur.target.class + ". Look, I'll show you."); reveal(); }
+    else say(pick(["Nope, try again!","Not quite!","Beep boop, wrong spot!"]), 3 - wrong + " tries left.");
+  }
+}
+function hint(){
+  if(busy || !cur) return;
+  const d = cur.target, b = d.bbox, n = cur.img;
+  const cx = (b[0] + b[2]/2)/n.naturalWidth, cy = (b[1] + b[3]/2)/n.naturalHeight;
+  const pos = (cy < .38 ? "top" : cy > .62 ? "bottom" : "middle") + " " + (cx < .38 ? "left" : cx > .62 ? "right" : "centre");
+  const col = colorName(n, b);
+  hints++;
+  if(hints === 1 && col) say("Here's a clue: it's mostly " + col + ".");
+  else if(hints <= 2) say("Another clue: look in the " + pos + " of the picture.");
+  else say("Last clue: its name has " + d.class.replace(/ /g,"").length + " letters.");
+  if(hints >= 3) $("hintBtn").disabled = true;
+}
+function giveUp(){ if(busy || !cur) return; say("It was the " + cur.target.class + "! Better luck next time."); sfx("no"); reveal(); }
+function finish(){
+  $("game").classList.add("hidden"); $("final").classList.remove("hidden"); $("fs").textContent = score;
+  const m = score >= 13 ? "You have eagle eyes! I'm impressed." : score >= 8 ? "Great spying! You're a pro." : score >= 4 ? "Not bad. Keep practising!" : "Hmm. Maybe try wearing glasses?";
+  $("fnote").textContent = m; say(m);
+}
+async function start(){
+  $("startBox").classList.add("hidden"); $("final").classList.add("hidden"); round = 0; score = 0; $("err").textContent = "";
+  say("Waking up my robot brain... this takes a moment."); setBusy(true); paint();
+  try{ await getModel(); }catch(e){ $("err").textContent = e.message; $("startBox").classList.remove("hidden"); return; }
+  nextRound();
+}
+$("startBtn").onclick = start; $("again").onclick = start;
+$("nextBtn").onclick = nextRound; $("hintBtn").onclick = hint; $("skipBtn").onclick = giveUp;
+</script>
+</body>
+</html>
