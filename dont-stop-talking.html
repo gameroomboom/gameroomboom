@@ -99,6 +99,42 @@ dialog h2{margin:0 0 14px;font-size:1.6rem;font-weight:800}
   .mic.live{animation:pulse 1s infinite}
   @keyframes pulse{50%{transform:scale(1.15)}}
 }
+
+/* fake windows + ads */
+.win{position:fixed;width:min(320px,86vw);background:#d4d0c8;color:#111;border:2px solid;border-color:#fff #404040 #404040 #fff;box-shadow:5px 5px 0 rgba(0,0,0,.4);font:14px Tahoma,Verdana,sans-serif;text-align:left}
+.wt{background:linear-gradient(90deg,#0a246a,#3a6ea5);color:#fff;font-weight:700;padding:3px 4px 3px 8px;display:flex;justify-content:space-between;align-items:center}
+.wt b{display:flex;gap:2px}
+.wt i{font-style:normal;background:#d4d0c8;color:#000;width:18px;height:16px;display:grid;place-items:center;border:1px solid;border-color:#fff #404040 #404040 #fff;font-size:12px;cursor:pointer}
+.wb{display:flex;gap:12px;padding:16px 14px;align-items:center}.wi{font-size:2rem}.wb p{margin:0;line-height:1.3}
+.wbt{display:flex;gap:8px;justify-content:center;padding:0 10px 12px}
+.wbt button{min-width:74px;padding:4px 10px;font:inherit;background:#d4d0c8;color:#111;border:2px solid;border-color:#fff #404040 #404040 #fff;cursor:pointer}
+.prog{height:16px;margin:0 14px 14px;border:2px inset #888;background:#fff}.prog i{display:block;height:100%;width:0;background:#0a246a}
+.ad{position:fixed;width:min(250px,70vw);border:4px solid #1b1740;border-radius:12px;padding:14px 14px 12px;color:#1b1740;box-shadow:6px 6px 0 rgba(0,0,0,.35);text-align:center}
+.ad.wide{width:min(420px,90vw)}
+.ad small{position:absolute;left:8px;top:4px;font-size:.7rem;opacity:.7}
+.ad .x{position:absolute;right:6px;top:2px;border:none;background:none;font-size:1.4rem;font-weight:800;cursor:pointer;color:#1b1740}
+.ad .ae{font-size:3rem;line-height:1.1}.ad h3{margin:2px 0;font-size:1.3rem;font-weight:800}.ad p{margin:0 0 8px;font-size:.92rem}
+.row2{display:flex;gap:10px;justify-content:center;align-items:center}
+.price{background:#1b1740;color:#fff;border-radius:999px;padding:4px 12px;font-weight:800}
+.buy{background:#fff;border:3px solid #1b1740;border-radius:8px;padding:4px 12px;font-weight:800}
+.ad.vid{background:#111!important;color:#fff;border-color:#555}.ad.vid .ae{background:#333;border-radius:8px;padding:14px}
+.bar{height:6px;background:#555;border-radius:3px;margin:8px 0}.bar i{display:block;height:100%;width:0;background:#ff3030;border-radius:3px}
+.skip{font-weight:800;font-size:.85rem;text-align:right}
+.call{position:fixed;top:12px;left:50%;translate:-50% 0;z-index:44;width:min(340px,92vw);background:#1b1740;color:#fff;border-radius:20px;padding:12px 14px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 0 rgba(0,0,0,.3)}
+.call .av{font-size:1.8rem}.call>div:nth-child(2){flex:1;text-align:left}.call small{display:block;opacity:.7}
+.call button{width:42px;height:42px;border-radius:50%;border:none;font-size:1.1rem;font-weight:800;cursor:pointer;color:#fff}
+.call .acc{background:#2fbf6b}.call .dec{background:#e5384f}
+.cookie{position:fixed;left:8px;right:8px;bottom:120px;z-index:45;max-width:560px;margin:0 auto;background:#fff;color:#111;border-radius:14px;padding:14px;box-shadow:0 6px 0 rgba(0,0,0,.3);text-align:left}
+.cookie button{margin:8px 8px 0 0;padding:8px 14px;font:inherit;font-weight:800;border:none;border-radius:8px;background:#1b1740;color:#fff;cursor:pointer}
+@media (prefers-reduced-motion:no-preference){
+  .win,.ad{animation:pin .25s ease-out}
+  .buy{animation:bl .5s steps(2) infinite}
+  @keyframes bl{50%{background:#ffcf3f}}
+  .ad.vid .bar i{animation:prg 5s linear forwards}
+  @keyframes prg{to{width:100%}}
+  .call{animation:rng .35s ease-in-out infinite alternate}
+  @keyframes rng{from{rotate:-2deg}to{rotate:2deg}}
+}
 </style>
 </head>
 <body>
@@ -110,7 +146,7 @@ dialog h2{margin:0 0 14px;font-size:1.6rem;font-weight:800}
     <div class="mic" aria-hidden="true">&#127908;</div>
     <h1>Don't stop talking</h1>
     <p class="sub">Talk non-stop into your microphone. If you go quiet for too long, you lose. Popups will try to make you shut up.</p>
-    <div class="warn"><b>Warning:</b> flashing colors, loud bleeps and chaos. Turn flashing and sounds off in Settings if that bothers you. Headphones help the game hear only you.</div>
+    <div class="warn"><b>Warning:</b> flashing colors, loud realistic sounds, fake voices and fake ads and error windows. Turn flashing, sound or voices off in Settings if that bothers you. Headphones help the game hear only you.</div>
     <div class="row">
       <button class="btn" id="playBtn">Start talking</button>
       <button class="btn ghost" id="setBtn">&#9881; Settings</button>
@@ -158,11 +194,12 @@ dialog h2{margin:0 0 14px;font-size:1.6rem;font-weight:800}
   <div class="set"><label for="grace">Silence allowed <output id="graceO"></output></label>
     <input type="range" id="grace" min="0.5" max="5" step="0.5"></div>
   <div class="set"><label for="inten">Popup chaos</label>
-    <select id="inten"><option value="chill">Chill</option><option value="normal">Normal</option><option value="chaos">Total chaos</option></select></div>
+    <select id="inten"><option value="chill">Chill</option><option value="normal">Normal</option><option value="chaos">Total chaos</option><option value="nightmare">Nightmare</option></select></div>
   <label class="chk"><input type="checkbox" id="popups"> Random popups</label>
   <label class="chk"><input type="checkbox" id="ramp"> Chaos grows the longer you talk</label>
   <label class="chk"><input type="checkbox" id="flash"> Flashing screen effects</label>
   <label class="chk"><input type="checkbox" id="sound"> Sound effects</label>
+  <label class="chk"><input type="checkbox" id="voice"> Fake voices reading the ads</label>
   <div class="test">
     <button class="btn gold" id="testBtn" style="padding:8px 18px;font-size:1rem">Test microphone</button>
     <div class="track"><div class="fill" id="tfill"></div><div class="thr" id="tthr"></div></div>
@@ -174,7 +211,7 @@ dialog h2{margin:0 0 14px;font-size:1.6rem;font-weight:800}
 <script>
 const $ = id => document.getElementById(id);
 const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
-const DEF = { sens:60, grace:2, inten:"normal", popups:true, ramp:true, flash:!REDUCE, sound:true };
+const DEF = { sens:60, grace:2, inten:"normal", popups:true, ramp:true, flash:!REDUCE, sound:true, voice:true };
 let S = Object.assign({}, DEF);
 try{ Object.assign(S, JSON.parse(localStorage.getItem("dst_settings") || "{}")); }catch(e){}
 const save = () => { try{ localStorage.setItem("dst_settings", JSON.stringify(S)); }catch(e){} };
@@ -209,50 +246,132 @@ function tone(f,t0,d,type,v){
   o.type = type||"square"; o.frequency.setValueAtTime(f,t); g.gain.setValueAtTime(v||.05,t); g.gain.exponentialRampToValueAtTime(.0001,t+d);
   o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+d+.02);
 }
+function noise(d,f,v){
+  const c = ctx(); if(!c) return;
+  const n = Math.floor(c.sampleRate*d), b = c.createBuffer(1,n,c.sampleRate), a = b.getChannelData(0);
+  for(let i=0;i<n;i++) a[i] = (Math.random()*2-1)*(1-i/n);
+  const s = c.createBufferSource(), g = c.createGain(), fl = c.createBiquadFilter();
+  fl.type = "bandpass"; fl.frequency.value = f; g.gain.value = v; s.buffer = b;
+  s.connect(fl); fl.connect(g); g.connect(c.destination); s.start();
+}
 function sfx(n){
-  if(!S.sound) return;
-  if(n==="beep") tone(660,0,.12,"triangle",.1);
-  else if(n==="go") [523,784].forEach((f,i)=>tone(f,i*.1,.2,"triangle",.1));
-  else if(n==="pop") tone(rnd(300,1400),0,.09,pick(["square","sawtooth","triangle"]),.05);
-  else if(n==="lose"){ tone(220,0,.25,"sawtooth",.09); tone(165,.2,.3,"sawtooth",.09); tone(110,.42,.5,"sawtooth",.09); }
+  if(!S.sound) return; const c = ctx(); if(!c) return;
+  switch(n){
+    case "beep": tone(660,0,.12,"triangle",.1); break;
+    case "go": [523,784].forEach((f,i)=>tone(f,i*.1,.2,"triangle",.1)); break;
+    case "ding": tone(1320,0,.5,"sine",.16); tone(1760,.08,.6,"sine",.1); break;
+    case "bong": tone(392,0,.35,"square",.07); tone(294,.12,.5,"square",.07); break;
+    case "msg": [1175,1397,1760].forEach((f,i)=>tone(f,i*.11,.3,"sine",.15)); break;
+    case "ring": for(let k=0;k<3;k++){ tone(440,k*.55,.4,"sine",.12); tone(480,k*.55,.4,"sine",.12); } break;
+    case "coin": [988,1319].forEach((f,i)=>tone(f,i*.07,.35,"square",.07)); noise(.06,6000,.25); break;
+    case "horn": [466,554,698].forEach(f=>tone(f,0,.8,"sawtooth",.08)); break;
+    case "thud": tone(90,0,.3,"sine",.3); noise(.1,200,.5); break;
+    case "pop": tone(rnd(300,1400),0,.09,pick(["square","sawtooth","triangle"]),.05); break;
+    case "siren": {
+      const o = c.createOscillator(), g = c.createGain(), t = c.currentTime;
+      o.type = "sawtooth"; o.frequency.setValueAtTime(650,t);
+      for(let k=0;k<4;k++) o.frequency.linearRampToValueAtTime(k%2 ? 650 : 950, t+k*.25+.25);
+      g.gain.setValueAtTime(.08,t); g.gain.linearRampToValueAtTime(0,t+1);
+      o.connect(g); g.connect(c.destination); o.start(t); o.stop(t+1.05); break;
+    }
+    case "lose": [311,294,277,247].forEach((f,i)=>tone(f,i*.32,i===3?.9:.3,"sawtooth",.12)); break;
+  }
+}
+function say(t){
+  if(!S.sound || !S.voice || !("speechSynthesis" in window)) return;
+  try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.rate = rnd(.95,1.5); u.pitch = rnd(.6,1.7); u.volume = .9; speechSynthesis.speak(u); }catch(e){}
 }
 
-/* ---------- chaos effects ---------- */
+/* ---------- chaos effects (all fake, all jokes) ---------- */
 const COLORS = ["#ffcf3f","#ff6b9d","#5ec8ff","#3ddc97","#ffb347","#b28dff","#c6ff5e","#7cf0ff"];
 const ADS = [
- ["YOU WON!!!","You are visitor number 1,000,000. Keep talking to claim nothing."],
- ["FREE CAT","Adopt a free cat today. Terms: the cat is imaginary."],
- ["BREAKING NEWS","Local pigeon does something unbelievable."],
- ["DOWNLOAD MORE RAM","Your browser looks thirsty. Fill it now!"],
- ["HOT SOUP NEAR YOU","Soup lovers are 0.3 km away."],
- ["SPIN THE WHEEL","Spin to win absolutely nothing."],
- ["WARNING","Your fridge is running. Go and catch it."],
- ["SUBSCRIBE","Like, share and keep talking."],
- ["LIMITED OFFER","Buy 1 air, get 1 air free."],
- ["DID YOU KNOW?","Bananas are berries. Strawberries are not. Keep talking!"],
- ["CONGRATULATIONS","You have been selected to keep talking."],
- ["TOO QUIET?","Say literally anything."]
+ {b:"SNAXX",t:"Crunch so loud your neighbors hear it!",p:"$0.99",c:"#ffcf3f",e:"\uD83C\uDF7F"},
+ {b:"BLORP COLA",t:"Now with 40% more fizz!",p:"2 for $1",c:"#ff6b9d",e:"\uD83E\uDD64"},
+ {b:"MEGASLEEP",t:"Mattresses 70% off. Dreams not included.",p:"$49",c:"#5ec8ff",e:"\uD83D\uDECF\uFE0F"},
+ {b:"ZOOMBA 9000",t:"The vacuum that vacuums itself!",p:"$199",c:"#3ddc97",e:"\uD83E\uDD16"},
+ {b:"PIZZAWORLD",t:"Large pizza, small price, medium regret.",p:"$5.99",c:"#ffb347",e:"\uD83C\uDF55"},
+ {b:"CRYPTO CAT",t:"Invest in a cat that does nothing!",p:"FREE",c:"#b28dff",e:"\uD83D\uDC31"},
+ {b:"GLOWSMILE",t:"Teeth so white they need sunglasses!",p:"$12",c:"#7cf0ff",e:"\uD83E\uDDB7"},
+ {b:"TURBO SOCKS",t:"Walk 20 percent faster. Scientists are confused.",p:"$9.99",c:"#c6ff5e",e:"\uD83E\uDDE6"},
+ {b:"HOTDOG HOTLINE",t:"Call now. Hotdogs are waiting!",p:"$1",c:"#ff5d73",e:"\uD83C\uDF2D"}
 ];
-const TOASTS = ["\uD83D\uDCDE Mom is calling","\uD83C\uDF55 Your pizza has arrived","\uD83D\uDCC5 Meeting starts now","\uD83D\uDD0B Battery at 1%","\u2764\uFE0F Someone liked your photo","\uD83D\uDCE6 Your package is outside","\uD83D\uDD14 Don't forget to breathe"];
-const EMOJIS = ["\uD83C\uDF89","\uD83D\uDD25","\uD83D\uDE02","\uD83D\uDC80","\u2B50","\uD83C\uDF55","\uD83D\uDC31","\uD83C\uDF08","\uD83D\uDCA5","\uD83E\uDD2A"];
+const DIALOGS = [
+ ["Error","\u26D4","Error 404: Silence not found. Please talk to continue."],
+ ["Warning","\u26A0\uFE0F","Your volume is critically low. Talk louder now?"],
+ ["System Alert","\uD83D\uDEA8","14 awkward pauses detected."],
+ ["Notice","\u2139\uFE0F","Your voice is running out of words. Download more?"],
+ ["Question","\u2753","Do you want to keep talking?"],
+ ["Error","\u26D4","The quiet module has crashed. Restart your mouth?"],
+ ["Update","\uD83D\uDD04","Installing update 1 of 9999. Keep talking while you wait."],
+ ["Warning","\u26A0\uFE0F","A cat has entered the chat. Continue?"]
+];
+const BTNS = [["OK"],["Yes","No"],["OK","Cancel"],["Yes","Yes"],["Retry","Ignore"]];
+const TOASTS = ["\uD83D\uDCAC Hey, are you there?","\uD83C\uDF55 Your pizza has arrived","\uD83D\uDCC5 Meeting starts now","\uD83D\uDD0B Battery at 1%","\u2764\uFE0F Someone liked your photo","\uD83D\uDCE6 Your package is outside","\uD83D\uDD14 Don't forget to breathe"];
+const EMOJIS = ["\uD83C\uDF89","\uD83D\uDD25","\uD83D\uDE02","\uD83D\uDC80","\u2B50","\uD83D\uDCB0","\uD83D\uDC31","\uD83C\uDF08","\uD83D\uDCA5","\uD83E\uDD2A"];
 const BANNERS = ["KEEP TALKING!!!","DON'T STOP!!!","BLAH BLAH BLAH","SAY SOMETHING!","YAP YAP YAP","NO SILENCE ALLOWED"];
+const CALLERS = ["Mom","Dad","Unknown number","Pizza guy","Boss","Grandma","Landlord","Your cat"];
 const TOPICS = ["Describe your morning","Tell a story about a pet","Explain your favorite food","Describe your bedroom","Plan a dream vacation","Retell a movie you love","List everything in your bag","Explain how to make a sandwich","Describe your best friend","Talk about your weirdest dream","Name every animal you can think of","Describe the weather outside"];
-let lastFlash = 0;
+let lastFlash = 0, zc = 0;
 function add(el, ms){ document.body.appendChild(el); setTimeout(()=>el.remove(), ms); return el; }
-function windowPop(){
-  document.querySelectorAll(".pop").forEach((p,i,all)=>{ if(all.length>=7 && i===0) p.remove(); });
-  const [t,b] = pick(ADS), d = document.createElement("div");
-  d.className = "pop"; d.style.background = pick(COLORS);
-  d.style.left = rnd(2,62)+"vw"; d.style.top = rnd(8,58)+"vh"; d.style.rotate = rnd(-8,8)+"deg";
-  d.innerHTML = '<button class="x" aria-label="Close">&times;</button><h3></h3><p></p><span class="go">CLAIM NOW</span>';
-  d.querySelector("h3").textContent = t; d.querySelector("p").textContent = b;
+function place(d,w){ d.style.left = rnd(1,Math.max(2,100-w))+"vw"; d.style.top = rnd(4,54)+"vh"; d.style.zIndex = 40 + (zc++ % 15); }
+function trim(sel,n){ const all = document.querySelectorAll(sel); if(all.length >= n) all[0].remove(); }
+function winEl(title){
+  const d = document.createElement("div"); d.className = "win";
+  d.innerHTML = '<div class="wt"><span></span><b><i>_</i><i>\u25A1</i><i class="cl">\u00D7</i></b></div><div class="wb"><span class="wi"></span><p></p></div>';
+  d.querySelector(".wt span").textContent = title; return d;
+}
+function dialog(){
+  trim(".win",8);
+  const [t,ic,m] = pick(DIALOGS), bs = pick(BTNS), d = winEl(t), row = document.createElement("div");
+  d.querySelector(".wi").textContent = ic; d.querySelector("p").textContent = m; row.className = "wbt"; d.appendChild(row);
+  const close = () => { d.remove(); if(Math.random() < .35 && mode === "run"){ sfx("bong"); dialog(); } };
+  d.querySelector(".cl").onclick = close;
+  bs.forEach(x => { const b = document.createElement("button"); b.textContent = x; b.onclick = close; row.appendChild(b); });
+  place(d,36); sfx("bong"); add(d, rnd(3000,6500));
+}
+function adBox(){
+  trim(".ad",5);
+  const a = pick(ADS), d = document.createElement("div");
+  d.className = "ad" + (Math.random() < .35 ? " wide" : ""); d.style.background = a.c;
+  d.innerHTML = '<button class="x" aria-label="Close ad">&times;</button><small>Ad</small><div class="ae"></div><h3></h3><p></p><div class="row2"><span class="price"></span><span class="buy">BUY NOW</span></div>';
+  d.querySelector(".ae").textContent = a.e; d.querySelector("h3").textContent = a.b; d.querySelector("p").textContent = a.t; d.querySelector(".price").textContent = a.p;
   d.querySelector(".x").onclick = () => d.remove();
-  add(d, rnd(2200,4800));
+  place(d,38); sfx(pick(["ding","coin"])); say(a.b + "! " + a.t); add(d, rnd(3500,7000));
+}
+function videoAd(){
+  const a = pick(ADS), d = document.createElement("div"); d.className = "ad vid";
+  d.innerHTML = '<small>Ad</small><div class="ae"></div><h3></h3><div class="bar"><i></i></div><div class="skip">Skip ad in 5</div>';
+  d.querySelector(".ae").textContent = a.e; d.querySelector("h3").textContent = a.b + " - " + a.p;
+  let n = 5; const sk = d.querySelector(".skip"), iv = setInterval(()=>{ n--; sk.textContent = n > 0 ? "Skip ad in " + n : "Skip ad \u25B6"; if(!d.isConnected) clearInterval(iv); }, 1000);
+  place(d,38); sfx("horn"); say(a.b + ". " + a.t); add(d, 5600);
+}
+function scanPop(){
+  const d = winEl("VoiceDefender Scan"), p = d.querySelector("p");
+  p.textContent = "Scanning your talking... 0%"; d.querySelector(".wi").textContent = "\uD83D\uDD0D";
+  const pg = document.createElement("div"); pg.className = "prog"; pg.innerHTML = "<i></i>"; d.appendChild(pg);
+  d.querySelector(".cl").onclick = () => d.remove();
+  let v = 0; const iv = setInterval(()=>{ v = Math.min(100, v + rnd(6,22)); pg.firstChild.style.width = v + "%"; p.textContent = v < 100 ? "Scanning your talking... " + Math.round(v) + "%" : "Found 14 quiet moments!"; if(v >= 100 || !d.isConnected) clearInterval(iv); }, 250);
+  place(d,36); sfx("msg"); add(d, 4200);
+}
+function callPop(){
+  if(document.querySelector(".call")) return dialog();
+  const d = document.createElement("div"); d.className = "call";
+  d.innerHTML = '<div class="av">\uD83D\uDCDE</div><div><b></b><small>Incoming call...</small></div><button class="acc">\u2713</button><button class="dec">\u2715</button>';
+  d.querySelector("b").textContent = pick(CALLERS);
+  d.querySelector(".acc").onclick = d.querySelector(".dec").onclick = () => d.remove();
+  sfx("ring"); add(d, 4000);
+}
+function cookie(){
+  if(document.querySelector(".cookie")) return dialog();
+  const d = document.createElement("div"); d.className = "cookie";
+  d.innerHTML = '<b>We use cookies \uD83C\uDF6A</b><br>Mostly the chocolate chip kind. Please accept all of them.<br><button>Accept all</button><button>Accept all</button>';
+  d.querySelectorAll("button").forEach(b => b.onclick = () => d.remove());
+  sfx("ding"); add(d, 4200);
 }
 function emojiBurst(){
-  for(let i=0;i<12;i++){
+  for(let i=0;i<14;i++){
     const e = document.createElement("div"); e.className = "emo"; e.textContent = pick(EMOJIS);
-    e.style.setProperty("--x", "50vw"); e.style.setProperty("--y", rnd(25,55)+"vh");
+    e.style.setProperty("--x","50vw"); e.style.setProperty("--y", rnd(25,55)+"vh");
     e.style.setProperty("--dx", rnd(-45,45)+"vw"); e.style.setProperty("--dy", rnd(-35,35)+"vh"); e.style.setProperty("--r", rnd(-540,540)+"deg");
     add(e, 1600);
   }
@@ -262,20 +381,42 @@ function banner(){
   d.innerHTML = "<span></span>"; d.firstChild.textContent = pick(BANNERS) + "  " + pick(EMOJIS) + "  " + pick(BANNERS);
   add(d, 2700);
 }
+function flashOnce(col){ const d = document.createElement("div"); d.className = "flashfx"; d.style.background = col; add(d, 450); }
 function flashFx(){
-  const now = performance.now(); if(!S.flash || now - lastFlash < 500) return windowPop();
-  lastFlash = now; const d = document.createElement("div"); d.className = "flashfx"; d.style.background = pick(COLORS); add(d, 450);
+  const now = performance.now(); if(!S.flash || now - lastFlash < 500) return dialog();
+  lastFlash = now; flashOnce(pick(COLORS));
 }
-function toast(){ const d = document.createElement("div"); d.className = "toast"; d.textContent = pick(TOASTS); add(d, 2200); }
-function shake(){ if(REDUCE) return windowPop(); document.body.classList.add("shake"); setTimeout(()=>document.body.classList.remove("shake"), 520); }
-function spawn(){
+function siren(){
+  sfx("siren");
+  const now = performance.now(); if(!S.flash || now - lastFlash < 500) return dialog();
+  lastFlash = now; flashOnce("#ff2030"); setTimeout(()=>flashOnce("#2040ff"), 500);
+}
+function toast(){ const d = document.createElement("div"); d.className = "toast"; d.textContent = pick(TOASTS); add(d, 2400); }
+function shake(){ if(REDUCE) return dialog(); document.body.classList.add("shake"); setTimeout(()=>document.body.classList.remove("shake"), 520); }
+function one(){
   const r = Math.random();
-  sfx("pop");
-  if(r<.45) windowPop(); else if(r<.6) emojiBurst(); else if(r<.72) banner(); else if(r<.84) flashFx(); else if(r<.93) toast(); else shake();
+  if(r<.22) dialog();
+  else if(r<.44) adBox();
+  else if(r<.50) videoAd();
+  else if(r<.56) scanPop();
+  else if(r<.62) callPop();
+  else if(r<.70){ toast(); sfx("msg"); }
+  else if(r<.74) cookie();
+  else if(r<.82){ emojiBurst(); sfx("coin"); }
+  else if(r<.88){ banner(); sfx("horn"); }
+  else if(r<.95) siren();
+  else { shake(); sfx("thud"); }
 }
-function clearFx(){ document.querySelectorAll(".pop,.emo,.banner,.flashfx,.toast").forEach(e=>e.remove()); }
+function spawn(){
+  const n = S.inten === "nightmare" ? 2 : (S.inten === "chaos" && Math.random() < .4 ? 2 : 1);
+  for(let i=0;i<n;i++) one();
+}
+function clearFx(){
+  document.querySelectorAll(".win,.ad,.call,.cookie,.emo,.banner,.flashfx,.toast").forEach(e=>e.remove());
+  try{ if("speechSynthesis" in window) speechSynthesis.cancel(); }catch(e){}
+}
 function gap(talked){
-  const [a,b] = { chill:[2500,4500], normal:[1100,2600], chaos:[300,1000] }[S.inten];
+  const [a,b] = { chill:[2500,4500], normal:[1100,2600], chaos:[300,1000], nightmare:[150,600] }[S.inten];
   const k = S.ramp ? Math.max(.35, 1 - talked/90) : 1;
   return rnd(a,b)*k;
 }
@@ -338,14 +479,14 @@ requestAnimationFrame(frame);
 /* ---------- settings ---------- */
 function paintSettings(){
   $("sens").value = S.sens; $("grace").value = S.grace; $("inten").value = S.inten;
-  ["popups","ramp","flash","sound"].forEach(k => $(k).checked = S[k]);
+  ["popups","ramp","flash","sound","voice"].forEach(k => $(k).checked = S[k]);
   $("sensO").textContent = S.sens + "%"; $("graceO").textContent = S.grace + " s";
 }
 function openSettings(){ paintSettings(); $("testBtn").textContent = stream ? "Stop test" : "Test microphone"; $("dlg").showModal(); }
 $("sens").oninput = e => { S.sens = +e.target.value; $("sensO").textContent = S.sens + "%"; save(); };
 $("grace").oninput = e => { S.grace = +e.target.value; $("graceO").textContent = S.grace + " s"; save(); };
 $("inten").onchange = e => { S.inten = e.target.value; save(); };
-["popups","ramp","flash","sound"].forEach(k => $(k).onchange = e => { S[k] = e.target.checked; save(); });
+["popups","ramp","flash","sound","voice"].forEach(k => $(k).onchange = e => { S[k] = e.target.checked; save(); });
 $("testBtn").onclick = async () => {
   if(stream){ stopMic(); $("testBtn").textContent = "Test microphone"; return; }
   const ok = await startMic(); $("testBtn").textContent = ok ? "Stop test" : "Mic blocked";
