@@ -135,6 +135,45 @@ dialog h2{margin:0 0 14px;font-size:1.6rem;font-weight:800}
   .call{animation:rng .35s ease-in-out infinite alternate}
   @keyframes rng{from{rotate:-2deg}to{rotate:2deg}}
 }
+
+.stats{flex-wrap:wrap}
+.dare{max-width:520px;margin:18px auto 0;background:var(--surface);border:4px solid var(--pink);border-radius:18px;padding:12px 16px;font-size:1.15rem;box-shadow:var(--shadow)}
+.dbar{height:12px;border-radius:999px;background:var(--bg);margin-top:10px;overflow:hidden}.dbar i{display:block;height:100%;width:0;background:var(--pink)}
+.pu{position:fixed;z-index:58;font-size:2.2rem;width:64px;height:64px;border-radius:50%;border:4px solid #fff;background:var(--gold);cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.3)}
+@media (prefers-reduced-motion:no-preference){.pu{animation:bob .8s ease-in-out infinite alternate}@keyframes bob{to{translate:0 -12px}}}
+
+/* realistic modern popups */
+.note{position:fixed;right:12px;z-index:47;width:min(340px,92vw);display:flex;gap:12px;align-items:center;background:rgba(250,250,252,.97);color:#1c1c1e;border-radius:16px;padding:12px 14px;box-shadow:0 10px 30px rgba(0,0,0,.35);font-family:system-ui,"Segoe UI",sans-serif;text-align:left;cursor:pointer}
+.note .ni{width:42px;height:42px;border-radius:10px;background:#e4e6ee;display:grid;place-items:center;font-size:1.5rem;flex:none}
+.note .nt{flex:1;min-width:0;line-height:1.25}.note small{display:block;color:#6b6b73;font-size:.72rem;font-weight:600}.note b{display:block;font-size:.95rem}.note span{font-size:.88rem;color:#3a3a40}
+.note em{font-style:normal;font-size:.72rem;color:#8a8a92;align-self:flex-start}
+.perm{position:fixed;left:10px;top:10px;z-index:48;width:min(330px,92vw);background:#fff;color:#202124;border-radius:12px;padding:16px;box-shadow:0 6px 24px rgba(0,0,0,.4);font-family:system-ui,"Segoe UI",sans-serif;text-align:left}
+.perm .ph{font-size:.85rem;color:#5f6368;margin-bottom:8px}.perm .pr{font-size:1rem;margin-bottom:14px}.perm .pb{display:flex;justify-content:flex-end;gap:8px}
+.perm button{border:1px solid #dadce0;background:#fff;color:#1a73e8;border-radius:18px;padding:7px 18px;font:inherit;font-weight:600;cursor:pointer}.perm .pa{background:#1a73e8;color:#fff;border-color:#1a73e8}
+.mdlg{position:fixed;width:min(360px,90vw);background:#f3f3f3;color:#1b1b1b;border-radius:10px;border:1px solid #d0d0d0;box-shadow:0 12px 36px rgba(0,0,0,.4);font-family:"Segoe UI",system-ui,sans-serif;text-align:left}
+.mh{display:flex;justify-content:space-between;align-items:center;padding:10px 14px;font-size:.85rem;color:#444}.mh i{font-style:normal;font-size:1.2rem;cursor:pointer;padding:0 4px}
+.mdlg p{margin:6px 18px 18px;font-size:1.02rem;line-height:1.35}
+.mb{display:flex;gap:8px;justify-content:flex-end;padding:12px 14px;background:#e9e9e9;border-radius:0 0 10px 10px}
+.mb button{border:1px solid #c8c8c8;background:#fdfdfd;color:#1b1b1b;border-radius:6px;padding:7px 16px;font:inherit;font-size:.9rem;cursor:pointer}.mb .mp{background:#0067c0;color:#fff;border-color:#0067c0}
+.news{position:fixed;left:50%;top:16vh;translate:-50% 0;z-index:52;width:min(380px,92vw);background:#fff;color:#222;border-radius:14px;padding:26px 22px 18px;text-align:center;box-shadow:0 16px 50px rgba(0,0,0,.5);font-family:system-ui,"Segoe UI",sans-serif}
+.news .x{position:absolute;right:10px;top:6px;border:none;background:none;font-size:1.6rem;color:#888;cursor:pointer}
+.news .ne{font-size:3rem}.news h3{margin:6px 0;font-size:1.5rem}.news p{margin:0 0 14px;color:#555;font-size:.95rem}
+.news .fi{border:1px solid #ccc;border-radius:8px;padding:10px;color:#999;text-align:left;margin-bottom:10px}
+.news .sub2{width:100%;background:#e8453c;color:#fff;border:none;border-radius:8px;padding:12px;font:inherit;font-weight:700;cursor:pointer}
+.news a{display:block;margin-top:12px;font-size:.78rem;color:#888;text-decoration:underline;cursor:pointer}
+.inter{position:fixed;left:50%;top:12vh;translate:-50% 0;z-index:53;width:min(560px,92vw);min-height:min(48vh,380px);border-radius:10px;padding:34px 20px 24px;color:#1b1740;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.55);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.inter small{position:absolute;left:12px;top:10px;font-size:.75rem;opacity:.7}
+.inter .skipb{position:absolute;right:10px;top:8px;background:rgba(0,0,0,.65);color:#fff;border:none;border-radius:6px;padding:6px 12px;font:inherit;font-weight:700;cursor:pointer}
+.inter .skipb:disabled{cursor:default;opacity:.8}.inter .ie{font-size:4.5rem}.inter h2{margin:0;font-size:2.2rem;font-weight:800}.inter p{margin:0 0 8px;font-size:1.1rem}
+.mini{position:fixed;right:12px;bottom:125px;z-index:54;width:min(260px,70vw);background:#111;color:#fff;border-radius:10px;overflow:hidden;box-shadow:0 8px 26px rgba(0,0,0,.5);font-family:system-ui,"Segoe UI",sans-serif;text-align:left}
+.mini .x{position:absolute;right:4px;top:2px;border:none;background:rgba(0,0,0,.55);color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer}
+.mini .mv{height:120px;background:#333;display:grid;place-items:center;font-size:2.4rem}.mini .mt{padding:8px 10px 6px;font-size:.85rem;font-weight:600}.mini .bar{margin:0;border-radius:0}
+@media (prefers-reduced-motion:no-preference){
+  .note,.mini{animation:tin2 .3s ease-out}
+  @keyframes tin2{from{translate:120% 0}}
+  .news,.inter,.perm,.mdlg{animation:pin .25s ease-out}
+  .mini .bar i{animation:prg 6s linear forwards}
+}
 </style>
 </head>
 <body>
@@ -146,6 +185,7 @@ dialog h2{margin:0 0 14px;font-size:1.6rem;font-weight:800}
     <div class="mic" aria-hidden="true">&#127908;</div>
     <h1>Don't stop talking</h1>
     <p class="sub">Talk non-stop into your microphone. If you go quiet for too long, you lose. Popups will try to make you shut up.</p>
+    <p class="sub" style="font-size:.95rem">Every 15 seconds you level up and the game gets harder. Complete dares (shout, whisper, no breaths) for bonus points, and click the floating power-ups: 🛡️ saves you from one silence, 🧹 clears the screen, ⭐ doubles points, ❄️ freezes popups.</p>
     <div class="warn"><b>Warning:</b> flashing colors, loud realistic sounds, fake voices and fake ads and error windows. Turn flashing, sound or voices off in Settings if that bothers you. Headphones help the game hear only you.</div>
     <div class="row">
       <button class="btn" id="playBtn">Start talking</button>
@@ -158,10 +198,11 @@ dialog h2{margin:0 0 14px;font-size:1.6rem;font-weight:800}
 
   <!-- Play -->
   <section id="play" class="hidden">
-    <div class="stats"><span class="pill"><em>Best</em><span id="bestPlay">0.0</span> s</span><button class="btn ghost" id="quit" style="padding:4px 16px;font-size:1rem">Quit</button></div>
+    <div class="stats"><span class="pill"><em>Score</em><span id="score">0</span></span><span class="pill"><em>Level</em><span id="lvl">1</span></span><span class="pill" id="shieldPill">🛡️ <span id="shield">0</span></span><span class="pill"><em>Best</em><span id="bestPlay">0.0</span> s</span><button class="btn ghost" id="quit" style="padding:4px 16px;font-size:1rem">Quit</button></div>
     <div id="big">3</div>
     <div class="timer" id="timer">0.0</div>
     <div id="topic" class="hidden"></div>
+    <div id="dare" class="dare hidden"><b id="dareText"></b><div class="dbar"><i id="dareFill"></i></div></div>
   </section>
 
   <!-- Over -->
@@ -169,6 +210,7 @@ dialog h2{margin:0 0 14px;font-size:1.6rem;font-weight:800}
     <h1>You went quiet!</h1>
     <div class="big"><span id="finalTime">0.0</span> s</div>
     <p class="sub" id="finalNote"></p>
+    <p class="sub" id="finalExtra"></p>
     <div class="row">
       <button class="btn" id="again">Play again</button>
       <button class="btn ghost" id="setBtn2">&#9881; Settings</button>
@@ -393,18 +435,84 @@ function siren(){
 }
 function toast(){ const d = document.createElement("div"); d.className = "toast"; d.textContent = pick(TOASTS); add(d, 2400); }
 function shake(){ if(REDUCE) return dialog(); document.body.classList.add("shake"); setTimeout(()=>document.body.classList.remove("shake"), 520); }
+/* ---------- realistic popups (modern OS and website style, all fake) ---------- */
+const NOTES = [
+ ["Messages","\uD83D\uDCAC","Alex","hey are you there?? call me back"],
+ ["Calendar","\uD83D\uDCC5","Meeting in 5 minutes","Team sync, Room 4"],
+ ["Delivery","\uD83D\uDCE6","Out for delivery","Your package arrives today by 6 PM"],
+ ["Weather","\u2614","Rain starting soon","Light rain expected in 10 minutes"],
+ ["Battery","\uD83D\uDD0B","Battery low","9% remaining. Connect your charger."],
+ ["Photos","\uD83D\uDDBC\uFE0F","New memories","3 new memories from last summer"],
+ ["Mom","\u2764\uFE0F","Mom","did you eat today?"],
+ ["Reminders","\u23F0","Reminder","Take out the trash"]
+];
+const MD = [
+ ["Restart required","Your PC will restart in 5 minutes to finish installing updates.","Restart now","Later"],
+ ["Storage almost full","You have 0 bytes of free space left. Free up space to keep going.","Manage storage","Dismiss"],
+ ["Wi-Fi disconnected","The connection to your network was lost.","Reconnect","Close"],
+ ["App not responding","Voice Recorder isn't responding. Wait for it or close the app?","Wait","Close app"],
+ ["Update available","Version 24.7 is ready. This is update 1 of 12.","Update","Remind me later"]
+];
+function mk(cls,html){ const d = document.createElement("div"); d.className = cls; d.innerHTML = html; return d; }
+function modernNotif(){
+  trim(".note",3);
+  const [app,ic,t,b] = pick(NOTES), d = mk("note",'<div class="ni"></div><div class="nt"><small></small><b></b><span></span></div><em>now</em>');
+  d.querySelector(".ni").textContent = ic; d.querySelector("small").textContent = app; d.querySelector("b").textContent = t; d.querySelector(".nt span").textContent = b;
+  d.style.bottom = (125 + rnd(0,170)) + "px"; d.onclick = () => d.remove();
+  sfx("msg"); add(d, 4200);
+}
+function permPrompt(){
+  if(document.querySelector(".perm")) return modernNotif();
+  const d = mk("perm",'<div class="ph">This site wants to</div><div class="pr">\uD83D\uDD14 Show notifications</div><div class="pb"><button>Block</button><button class="pa">Allow</button></div>');
+  d.querySelectorAll("button").forEach(b => b.onclick = () => d.remove());
+  sfx("ding"); add(d, 4200);
+}
+function modernDialog(){
+  trim(".mdlg",4);
+  const [t,m,a,b] = pick(MD), d = mk("mdlg",'<div class="mh"><span></span><i>\u00D7</i></div><p></p><div class="mb"><button class="mp"></button><button></button></div>');
+  d.querySelector(".mh span").textContent = t; d.querySelector("p").textContent = m;
+  const bs = d.querySelectorAll("button"); bs[0].textContent = a; bs[1].textContent = b;
+  d.querySelectorAll("button,i").forEach(x => x.onclick = () => { d.remove(); if(Math.random() < .25 && mode === "run") modernDialog(); });
+  place(d,34); sfx("bong"); add(d, rnd(3500,6500));
+}
+function newsletter(){
+  if(document.querySelector(".news")) return modernDialog();
+  const d = mk("news",'<button class="x" aria-label="Close">\u00D7</button><div class="ne">\uD83C\uDF81</div><h3>Wait! Get 15% off</h3><p>Join our newsletter for deals, tips and one email every hour.</p><div class="fi">your@email.com</div><button class="sub2">Subscribe</button><a>No thanks, I hate saving money</a>');
+  d.querySelectorAll("button,a").forEach(x => x.onclick = () => d.remove());
+  sfx("pop"); add(d, 6000);
+}
+function interstitial(){
+  if(document.querySelector(".inter")) return adBox();
+  const a = pick(ADS), d = mk("inter",'<small>Advertisement</small><button class="skipb" disabled>Skip in 5</button><div class="ie"></div><h2></h2><p></p><div class="buy">SHOP NOW</div>');
+  d.style.background = a.c; d.querySelector(".ie").textContent = a.e; d.querySelector("h2").textContent = a.b; d.querySelector("p").textContent = a.t;
+  let n = 5; const b = d.querySelector(".skipb");
+  const iv = setInterval(()=>{ n--; if(n > 0) b.textContent = "Skip in " + n; else { b.textContent = "Skip \u2715"; b.disabled = false; clearInterval(iv); } if(!d.isConnected) clearInterval(iv); }, 1000);
+  b.onclick = () => d.remove();
+  sfx("horn"); say(a.b + ". " + a.t); add(d, 8000);
+}
+function miniPlayer(){
+  if(document.querySelector(".mini")) return modernNotif();
+  const d = mk("mini",'<button class="x" aria-label="Close">\u00D7</button><div class="mv">\u25B6\uFE0F</div><div class="mt">Top 10 Cats Doing Absolutely Nothing</div><div class="bar"><i></i></div>');
+  d.querySelector(".x").onclick = () => d.remove();
+  sfx("ding"); add(d, 6000);
+}
 function one(){
   const r = Math.random();
-  if(r<.22) dialog();
-  else if(r<.44) adBox();
-  else if(r<.50) videoAd();
-  else if(r<.56) scanPop();
-  else if(r<.62) callPop();
-  else if(r<.70){ toast(); sfx("msg"); }
-  else if(r<.74) cookie();
-  else if(r<.82){ emojiBurst(); sfx("coin"); }
-  else if(r<.88){ banner(); sfx("horn"); }
-  else if(r<.95) siren();
+  if(r<.12) dialog();
+  else if(r<.24) adBox();
+  else if(r<.28) videoAd();
+  else if(r<.31) scanPop();
+  else if(r<.36) callPop();
+  else if(r<.48) modernNotif();
+  else if(r<.54) permPrompt();
+  else if(r<.62) modernDialog();
+  else if(r<.68) newsletter();
+  else if(r<.73) interstitial();
+  else if(r<.78) miniPlayer();
+  else if(r<.82) cookie();
+  else if(r<.88){ emojiBurst(); sfx("coin"); }
+  else if(r<.92){ banner(); sfx("horn"); }
+  else if(r<.96) siren();
   else { shake(); sfx("thud"); }
 }
 function spawn(){
@@ -412,13 +520,62 @@ function spawn(){
   for(let i=0;i<n;i++) one();
 }
 function clearFx(){
-  document.querySelectorAll(".win,.ad,.call,.cookie,.emo,.banner,.flashfx,.toast").forEach(e=>e.remove());
+  document.querySelectorAll(".win,.ad,.call,.cookie,.emo,.banner,.flashfx,.toast,.pu,.note,.perm,.mdlg,.news,.inter,.mini").forEach(e=>e.remove());
   try{ if("speechSynthesis" in window) speechSynthesis.cancel(); }catch(e){}
 }
 function gap(talked){
   const [a,b] = { chill:[2500,4500], normal:[1100,2600], chaos:[300,1000], nightmare:[150,600] }[S.inten];
   const k = S.ramp ? Math.max(.35, 1 - talked/90) : 1;
   return rnd(a,b)*k;
+}
+
+/* ---------- game extras: score, levels, dares, power-ups ---------- */
+let score = 0, lv = 1, shield = 0, dblUntil = 0, freezeUntil = 0, nextDare = 0, nextPU = 0, dare = null, bestScore = 0, bigText = "", bigUntil = 0;
+try{ bestScore = +localStorage.getItem("dst_bestscore") || 0; }catch(e){}
+const graceEff = () => Math.max(S.grace*.5, S.grace - (lv-1)*.12);
+function paintHud(){
+  $("score").textContent = Math.floor(score).toLocaleString("en-US"); $("lvl").textContent = lv; $("shield").textContent = shield;
+  $("shieldPill").style.opacity = shield ? 1 : .45;
+}
+function initRun(now){
+  score = 0; lv = 1; shield = 0; dblUntil = freezeUntil = 0; dare = null; bigUntil = 0;
+  nextDare = now + 12000; nextPU = now + 8000; $("dare").classList.add("hidden"); paintHud();
+}
+const DARES = [
+  { k:"shout", txt:"\uD83D\uDDE3\uFE0F SHOUT! Get really loud for 2 seconds", need:2, win:7 },
+  { k:"whisper", txt:"\uD83E\uDD2B WHISPER! Keep talking softly for 4 seconds", need:4, win:9 },
+  { k:"nonstop", txt:"\uD83D\uDE80 NO BREATHS! Don't pause for 5 seconds", need:5, win:5 }
+];
+function startDare(now){
+  dare = Object.assign({ t0:now, acc:0 }, pick(DARES));
+  $("dareText").textContent = dare.txt; $("dareFill").style.width = "0"; $("dare").classList.remove("hidden"); sfx("ding");
+}
+function endDare(ok, now){
+  dare = null; $("dare").classList.add("hidden"); nextDare = now + rnd(14000,20000);
+  if(ok){
+    score += 300*lv; bigText = "DARE DONE! +" + 300*lv; sfx("coin"); sfx("ding"); clearFx();
+  } else {
+    bigText = "DARE FAILED!"; sfx("bong");
+    for(let i=0;i<5;i++) setTimeout(()=>{ if(mode === "run") spawn(); }, i*200);
+  }
+  bigUntil = now + 1600; paintHud();
+}
+const PUS = [{ e:"\uD83D\uDEE1\uFE0F", k:"shield" },{ e:"\uD83E\uDDF9", k:"clean" },{ e:"\u2B50", k:"dbl" },{ e:"\u2744\uFE0F", k:"freeze" }];
+const PUTXT = { shield:"\uD83D\uDEE1\uFE0F SHIELD +1", clean:"\uD83E\uDDF9 SCREEN CLEARED", dbl:"\u2B50 DOUBLE POINTS", freeze:"\u2744\uFE0F POPUPS FROZEN" };
+function spawnPU(){
+  const p = pick(PUS), d = document.createElement("button");
+  d.className = "pu"; d.textContent = p.e; d.setAttribute("aria-label","Power-up: " + p.k);
+  d.style.left = rnd(5,85)+"vw"; d.style.top = rnd(14,60)+"vh";
+  d.onclick = () => { d.remove(); sfx("coin"); grab(p.k); };
+  add(d, 5500);
+}
+function grab(k){
+  const now = performance.now();
+  if(k === "shield") shield = Math.min(3, shield+1);
+  else if(k === "clean") clearFx();
+  else if(k === "dbl") dblUntil = now + 10000;
+  else freezeUntil = now + 6000;
+  bigText = PUTXT[k]; bigUntil = now + 1300; paintHud();
 }
 
 /* ---------- game ---------- */
@@ -442,19 +599,22 @@ async function begin(){
   cdTimer = setInterval(()=>{
     n--;
     if(n>0){ $("big").textContent = n; sfx("beep"); }
-    else { clearInterval(cdTimer); $("big").textContent = "TALK!"; sfx("go"); mode = "run"; tStart = lastT = performance.now(); silent = 0; nextPop = tStart + 2500; nextTopic = tStart + 9000; setTopic(); }
+    else { clearInterval(cdTimer); $("big").textContent = "TALK!"; sfx("go"); mode = "run"; tStart = lastT = performance.now(); silent = 0; nextPop = tStart + 2500; nextTopic = tStart + 9000; initRun(tStart); setTopic(); }
   }, 800);
 }
 function lose(talked){
-  mode = "over"; clearInterval(cdTimer); sfx("lose"); stopMic();
+  mode = "over"; clearInterval(cdTimer); sfx("lose"); stopMic(); dare = null; $("dare").classList.add("hidden");
   const isBest = talked > best;
   if(isBest){ best = talked; try{ localStorage.setItem("dst_best", best); }catch(e){} }
+  const sc = Math.floor(score), sb = sc > bestScore;
+  if(sb){ bestScore = sc; try{ localStorage.setItem("dst_bestscore", sc); }catch(e){} }
   $("finalTime").textContent = talked.toFixed(1);
-  $("finalNote").textContent = isBest ? "New best time! \uD83C\uDFC6" : "Best: " + best.toFixed(1) + " s";
+  $("finalNote").textContent = isBest ? "New best time! \uD83C\uDFC6" : "Best time: " + best.toFixed(1) + " s";
+  $("finalExtra").textContent = "Score " + sc.toLocaleString("en-US") + ", level " + lv + (sb ? ". New high score! \uD83C\uDFC6" : ". High score " + bestScore.toLocaleString("en-US") + ".");
   paintBest(); show("over");
   setTimeout(clearFx, 1500);
 }
-function quit(){ mode = "idle"; clearInterval(cdTimer); stopMic(); clearFx(); show("start"); }
+function quit(){ mode = "idle"; dare = null; $("dare").classList.add("hidden"); clearInterval(cdTimer); stopMic(); clearFx(); show("start"); }
 
 function frame(now){
   requestAnimationFrame(frame);
@@ -463,16 +623,39 @@ function frame(now){
   if($("dlg").open) paintMeter("tfill","tthr");
   if(mode !== "run") return;
   const dt = (now - lastT)/1000; lastT = now;
-  const talking = level > thr();
+  const talking = level > thr(), g = graceEff();
   silent = talking ? 0 : silent + dt;
   const talked = (now - tStart)/1000;
   $("timer").textContent = talked.toFixed(1);
-  $("dbar").style.width = Math.max(0, (1 - silent/S.grace)*100) + "%";
-  $("mstate").textContent = talking ? "\uD83C\uDF99\uFE0F Talking" : "\uD83E\uDD2B Quiet " + Math.max(0, S.grace - silent).toFixed(1);
-  $("big").textContent = talking ? "KEEP GOING!" : "TALK!!!";
-  if(silent >= S.grace) return lose(talked);
-  if(S.popups && now >= nextPop){ spawn(); nextPop = now + gap(talked); }
+  if(talking) score += dt*10*(1 + (lv-1)*.5)*(now < dblUntil ? 2 : 1);
+  const nl = 1 + Math.floor(talked/15);
+  if(nl > lv){ lv = nl; bigText = "LEVEL " + lv + "!"; bigUntil = now + 1400; sfx("go"); emojiBurst(); }
+  $("dbar").style.width = Math.max(0, (1 - silent/g)*100) + "%";
+  $("mstate").textContent = talking ? "\uD83C\uDF99\uFE0F Talking" : "\uD83E\uDD2B Quiet " + Math.max(0, g - silent).toFixed(1);
+  $("big").textContent = now < bigUntil ? bigText : (talking ? "KEEP GOING!" : "TALK!!!");
+  if(silent >= g){
+    if(shield > 0){ shield--; silent = 0; bigText = "\uD83D\uDEE1\uFE0F SHIELD SAVED YOU!"; bigUntil = now + 1500; sfx("ding"); }
+    else return lose(talked);
+  }
+  if(!dare && talking && now >= nextDare) startDare(now);
+  if(dare){
+    const el = (now - dare.t0)/1000; let good;
+    if(dare.k === "shout") good = level > Math.min(.9, Math.max(.6, thr() + .3));
+    else if(dare.k === "whisper") good = talking && level < thr() + .2;
+    else good = silent < .4;
+    if(dare.k === "nonstop"){
+      $("dareFill").style.width = Math.min(100, el/dare.need*100) + "%";
+      if(!good) endDare(false, now); else if(el >= dare.need) endDare(true, now);
+    } else {
+      if(good) dare.acc += dt;
+      $("dareFill").style.width = Math.min(100, dare.acc/dare.need*100) + "%";
+      if(dare.acc >= dare.need) endDare(true, now); else if(el >= dare.win) endDare(false, now);
+    }
+  }
+  if(now >= nextPU){ spawnPU(); nextPU = now + rnd(9000,15000); }
+  if(S.popups && now >= nextPop && now >= freezeUntil){ spawn(); nextPop = now + gap(talked); }
   if(now >= nextTopic){ setTopic(); nextTopic = now + 9000; }
+  paintHud();
 }
 requestAnimationFrame(frame);
 
