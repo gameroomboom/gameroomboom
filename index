@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GameRoomBoom</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f0ff;--surface:#ffffff;--ink:#1b1740;--muted:#6a649a;--line:#ddd6f7;
+  --shadow:0 6px 0 rgba(27,23,64,.12);
+  --f:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){
+    --bg:#1b1740;--surface:#262063;--ink:#fff7e8;--muted:#b3acd9;--line:#3b3490;
+    --shadow:0 6px 0 rgba(0,0,0,.28);
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:var(--bg);color:var(--ink);font-family:var(--f);font-weight:500;
+  min-height:100vh;display:flex;justify-content:center;padding:48px 16px 64px;
+}
+main{width:100%;max-width:900px}
+header{text-align:center;margin-bottom:40px}
+.logo{display:inline-flex;gap:8px;margin-bottom:18px}
+.logo i{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-style:normal;font-size:1.4rem;box-shadow:var(--shadow);color:#1b1740}
+.logo i:nth-child(1){background:#ff6b9d}.logo i:nth-child(2){background:#ffcf3f}.logo i:nth-child(3){background:#3ddc97}
+h1{font-size:clamp(2.6rem,10vw,5rem);margin:0;font-weight:800;letter-spacing:-.035em;line-height:.95}
+p.sub{margin:14px 0 0;color:var(--muted);font-size:1.15rem}
+
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:20px}
+.game{
+  position:relative;display:flex;flex-direction:column;background:var(--surface);color:var(--ink);
+  border:3px solid var(--line);border-radius:24px;padding:26px 22px 22px;text-decoration:none;
+  box-shadow:var(--shadow);overflow:hidden;
+}
+.game::before{content:"";position:absolute;left:0;top:0;right:0;height:10px;background:var(--c)}
+.game .ic{width:64px;height:64px;border-radius:20px;background:var(--c);display:grid;place-items:center;font-size:2rem;margin-bottom:16px;color:#1b1740}
+.game h2{margin:0 0 6px;font-size:1.5rem;font-weight:800;letter-spacing:-.01em}
+.game p{margin:0 0 22px;color:var(--muted);line-height:1.4;flex:1}
+.play{
+  align-self:flex-start;background:var(--c);color:#1b1740;font:inherit;font-weight:800;font-size:1.05rem;
+  border:none;border-radius:14px;padding:12px 24px;box-shadow:0 5px 0 rgba(0,0,0,.2);
+}
+a.game:hover,a.game:focus-visible{border-color:var(--c);outline:none}
+a.game:focus-visible .play{outline:3px solid var(--ink);outline-offset:3px}
+a.game:active .play{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
+.game.soon{opacity:.6;border-style:dashed;box-shadow:none}
+.game.soon .play{background:transparent;color:var(--muted);border:3px solid var(--line);box-shadow:none}
+footer{text-align:center;margin-top:44px;color:var(--muted);font-size:.95rem}
+
+@media (prefers-reduced-motion:no-preference){
+  .game{transition:transform .15s}
+  a.game:hover{transform:translateY(-6px) rotate(-.6deg)}
+  .logo i{animation:hop 2.4s ease-in-out infinite}
+  .logo i:nth-child(2){animation-delay:.2s}.logo i:nth-child(3){animation-delay:.4s}
+  @keyframes hop{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-10px)}}
+}
+
+/* ===== stylish animated title ===== */
+#title{position:relative;display:inline-block;font-size:clamp(2.8rem,13vw,6.8rem);cursor:pointer;user-select:none;-webkit-tap-highlight-color:transparent;line-height:1}
+#title .a,#title .b{display:inline-block}
+#title .b{font-size:1.14em;margin-left:.04em}
+#title .l{display:inline-block;text-shadow:0 4px 0 rgba(0,0,0,.25),0 9px 0 rgba(0,0,0,.1)}
+#title .b .l{color:var(--c);text-shadow:0 4px 0 rgba(0,0,0,.28),0 0 26px var(--c)}
+#title .l:hover{scale:1.2;translate:0 -12px}
+#title .ring{position:absolute;left:68%;top:50%;width:140px;height:140px;margin:-70px 0 0 -70px;border:7px solid var(--c1,#ffcf3f);border-radius:50%;pointer-events:none;opacity:0}
+#fxc{position:fixed;inset:0;pointer-events:none;z-index:50}
+@media (prefers-reduced-motion:no-preference){
+  #title .l{transition:scale .15s,translate .15s}
+  #title .a .l{animation:wave 2.6s ease-in-out infinite;animation-delay:calc(var(--i)*.09s)}
+  @keyframes wave{0%,100%{translate:0 0}50%{translate:0 -8px}}
+  #title .b .l{animation:wob 1.4s ease-in-out infinite alternate;animation-delay:calc(var(--i)*.12s)}
+  @keyframes wob{from{rotate:-6deg}to{rotate:6deg}}
+  #title.boom .b .l{animation:wob 1.4s ease-in-out infinite alternate,bp .6s ease-out;animation-delay:calc(var(--i)*.12s),calc(var(--i)*.06s)}
+  @keyframes bp{0%{scale:1}35%{scale:1.7;translate:0 -18px}100%{scale:1}}
+  #title.boom .a .l{animation:wave 2.6s ease-in-out infinite,ap .5s ease-out;animation-delay:calc(var(--i)*.09s),0s}
+  @keyframes ap{30%{scale:1.12}}
+  #title.boom .ring{animation:ring .75s ease-out}
+  @keyframes ring{from{opacity:.9;scale:.2}to{opacity:0;scale:3.4}}
+  #title.hit{animation:hit .4s}
+  @keyframes hit{25%{transform:translate(-8px,3px) rotate(-1.5deg)}50%{transform:translate(8px,-3px) rotate(1.5deg)}75%{transform:translate(-4px,2px)}}
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="logo" aria-hidden="true"><i>&#127922;</i><i>&#127942;</i><i>&#127918;</i></div>
+    <h1 id="title" aria-label="GameRoomBoom" title="Go on, click it"><span class="a" aria-hidden="true"></span><span class="b" aria-hidden="true"></span><span class="ring" aria-hidden="true"></span></h1>
+    <p class="sub">Pick a game and start playing.</p>
+  </header>
+
+  <section class="games" id="games" aria-label="Games"></section>
+
+  <footer>More games coming soon.</footer>
+</main>
+
+<script>
+/* ===== EDIT YOUR GAMES HERE =====
+   href  = the page of that game (change it to your real link)
+   soon  = true shows a greyed-out "Coming soon" card
+   color = card accent, icon = emoji                         */
+const GAMES = [
+  { title:"Higher or Lower", desc:"Guess if the next item is higher or lower. Pick a category and build a streak.",
+    href:"higher-or-lower.html", icon:"\u2195\uFE0F", color:"#ffcf3f", soon:false },
+  { title:"Don't Stop Talking", desc:"Talk into your mic without stopping. Go quiet and you lose. Popups will try to distract you.",
+    href:"dont-stop-talking.html", icon:"\uD83C\uDFA4", color:"#ff6b9d", soon:false },
+  { title:"Game three", desc:"Another game slot, ready for whatever you build next.",
+    href:"#", icon:"\uD83C\uDFAF", color:"#5ec8ff", soon:true }
+];
+/* ================================= */
+
+const wrap = document.getElementById("games");
+GAMES.forEach(g => {
+  const el = document.createElement(g.soon ? "div" : "a");
+  el.className = "game" + (g.soon ? " soon" : "");
+  el.style.setProperty("--c", g.color);
+  if(!g.soon) el.href = g.href;
+  const ic = document.createElement("div"); ic.className = "ic"; ic.textContent = g.icon;
+  const h = document.createElement("h2"); h.textContent = g.title;
+  const p = document.createElement("p"); p.textContent = g.desc;
+  const b = document.createElement("span"); b.className = "play"; b.textContent = g.soon ? "Coming soon" : "Play now";
+  el.append(ic, h, p, b);
+  wrap.appendChild(el);
+});
+
+/* ===== title effects ===== */
+(function(){
+  const t = document.getElementById("title"), COLS = ["#ff6b9d","#ffcf3f","#3ddc97","#5ec8ff","#b28dff"];
+  const REDUCE = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  function build(el, txt, colored){
+    [...txt].forEach((ch,i)=>{ const s = document.createElement("span"); s.className = "l"; s.textContent = ch; s.style.setProperty("--i", i); if(colored) s.style.setProperty("--c", COLS[i % COLS.length]); el.appendChild(s); });
+  }
+  build(t.querySelector(".a"), "GameRoom", false);
+  build(t.querySelector(".b"), "Boom", true);
+
+  const cv = document.createElement("canvas"); cv.id = "fxc"; document.body.appendChild(cv);
+  const cx = cv.getContext("2d"); let parts = [], raf = 0;
+  const fit = () => { cv.width = innerWidth; cv.height = innerHeight; }; addEventListener("resize", fit); fit();
+  function loop(){
+    cx.clearRect(0,0,cv.width,cv.height);
+    parts = parts.filter(p => p.life > 0);
+    parts.forEach(p => { p.vy += .35; p.x += p.vx; p.y += p.vy; p.r += p.vr; p.life--;
+      cx.save(); cx.translate(p.x,p.y); cx.rotate(p.r); cx.fillStyle = p.c; cx.globalAlpha = Math.min(1,p.life/25);
+      cx.fillRect(-p.s/2,-p.s/3,p.s,p.s*.6); cx.restore(); });
+    raf = parts.length ? requestAnimationFrame(loop) : (cx.clearRect(0,0,cv.width,cv.height), 0);
+  }
+  function burst(){
+    if(REDUCE) return;
+    const r = t.getBoundingClientRect(), x = r.left + r.width*.68, y = r.top + r.height/2;
+    for(let i=0;i<90;i++){
+      const a = Math.random()*Math.PI*2, v = 4 + Math.random()*11;
+      parts.push({ x, y, vx:Math.cos(a)*v, vy:Math.sin(a)*v - 4, s:6+Math.random()*8, r:Math.random()*6, vr:(Math.random()-.5)*.5, c:COLS[i%COLS.length], life:70+Math.random()*40 });
+    }
+    if(!raf) raf = requestAnimationFrame(loop);
+  }
+  let ac = null;
+  function boomSound(){
+    try{
+      ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if(ac.state === "suspended") ac.resume();
+      const o = ac.createOscillator(), g = ac.createGain(), n = ac.currentTime;
+      o.type = "sawtooth"; o.frequency.setValueAtTime(180,n); o.frequency.exponentialRampToValueAtTime(35,n+.4);
+      g.gain.setValueAtTime(.18,n); g.gain.exponentialRampToValueAtTime(.001,n+.45);
+      o.connect(g); g.connect(ac.destination); o.start(n); o.stop(n+.5);
+    }catch(e){}
+  }
+  function boom(){ t.classList.remove("boom"); void t.offsetWidth; t.classList.add("boom"); }
+  t.addEventListener("click", () => {
+    boom(); burst(); boomSound();
+    t.classList.remove("hit"); void t.offsetWidth; t.classList.add("hit");
+  });
+  setTimeout(boom, 900);
+  setInterval(boom, 6000);
+})();
+</script>
+</body>
+</html>
