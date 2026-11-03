@@ -75,20 +75,25 @@ h1{font-size:clamp(2.2rem,8vw,3.6rem);margin:0 0 4px;font-weight:800;letter-spac
   .robot{animation:bob 2.4s ease-in-out infinite alternate}
   @keyframes bob{to{translate:0 -6px}}
 }
+.tbar{height:14px;border-radius:999px;background:var(--surface);border:3px solid var(--line);overflow:hidden;margin-bottom:16px}
+.tbar i{display:block;height:100%;width:100%;background:var(--up)}
+.cell{position:absolute;background:rgba(255,207,63,.6);pointer-events:none}
 </style>
 </head>
 <body>
 <a class="top" href="index.html">&larr; Home</a>
 <main>
   <h1>I spy</h1>
-  <p class="sub">The robot spies something in a photo. Find it and click on it before you run out of tries.</p>
+  <p class="sub">The robot spies something in a photo. Find it before time runs out. It gets harder every round and you have 3 lives.</p>
 
   <div class="bar">
-    <span class="pill"><em>Round</em><span id="round">0</span>/5</span>
+    <span class="pill"><em>Level</em><span id="lvl">1</span></span>
     <span class="pill"><em>Score</em><span id="score">0</span></span>
+    <span class="pill" id="lives" aria-label="Lives"></span>
     <span class="pill"><em>Tries</em><span id="tries">3</span></span>
     <button class="btn ghost" id="snd" style="padding:4px 14px" aria-label="Toggle sound">&#128266;</button>
   </div>
+  <div class="tbar hidden" id="tbar"><i id="tfill"></i></div>
 
   <div class="botrow" id="bot">
     <svg class="robot" viewBox="0 0 140 160" aria-hidden="true">
@@ -114,14 +119,14 @@ h1{font-size:clamp(2.2rem,8vw,3.6rem);margin:0 0 4px;font-weight:800;letter-spac
     <div class="stage" id="stage"></div>
     <div class="credit" id="credit"></div>
     <div class="row">
-      <button class="btn gold" id="hintBtn">Hint (-1 point)</button>
+      <button class="btn gold" id="hintBtn">Hint</button>
       <button class="btn ghost" id="skipBtn">Give up</button>
       <button class="btn hidden" id="nextBtn">Next round</button>
     </div>
   </div>
 
   <div id="final" class="final hidden">
-    <div>Final score</div><div class="big"><span id="fs">0</span> / 15</div>
+    <div>Game over</div><div class="big"><span id="fs">0</span></div>
     <p id="fnote" class="sub"></p>
     <button class="btn" id="again">Play again</button>
   </div>
@@ -131,9 +136,10 @@ h1{font-size:clamp(2.2rem,8vw,3.6rem);margin:0 0 4px;font-weight:800;letter-spac
 <script>
 const $ = id => document.getElementById(id);
 const pick = a => a[Math.floor(Math.random()*a.length)];
-const ROUNDS = 5;
-const QUERIES = ["dog in park","street scene","kitchen interior","living room","city bus","bicycle on street","cat sitting","bowl of fruit","breakfast table","airport","railway station","farm animals","horse in field","office desk","bedroom","market stall","parking lot cars","birthday party","picnic","playground","zoo","beach people","restaurant table","kids playing"];
-let model = null, round = 0, score = 0, cur = null, wrong = 0, hints = 0, sound = true, busy = false, typer = 0;
+const QUERIES = ["dog in park","street scene","kitchen interior","living room","city bus","bicycle on street","cat sitting","bowl of fruit","breakfast table","airport","railway station","farm animals","horse in field","office desk","bedroom","market stall","parking lot cars","birthday party","picnic","playground","zoo","beach people","restaurant table","kids playing","elephant","giraffe","zebra","sheep grazing","cows in field","bird on branch","truck on road","motorcycle","airplane on runway","boat in harbor","tennis match","skateboard park","surfing","baseball game","cups and plates","bottles on table","laptop on desk","television room","pizza","sandwich","birthday cake","donuts","bananas","oranges","traffic lights","stop sign","bench in park","umbrellas","teddy bear","clock tower","suitcase luggage","backpack hikers","flowers in vase","toothbrush bathroom"];
+const NEUTRAL = ["grey","light grey","white","black"];
+let model = null, n = 0, score = 0, lives = 3, streak = 0, cur = null, wrong = 0, hintsUsed = 0, sound = true, busy = false, typer = 0, pending = null, tEnd = 0, tIv = 0, best = 0, resolved = true;
+try{ best = +localStorage.getItem("ispy_best") || 0; }catch(e){}
 
 /* ---------- sound + robot voice ---------- */
 let ac = null;
@@ -145,11 +151,13 @@ function tone(f,t0,d,type,v){
     o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+d+.02);
   }catch(e){}
 }
-function sfx(n){
+function sfx(k){
   if(!sound) return;
-  if(n === "ok") [660,880,1320].forEach((f,i)=>tone(f,i*.09,.25,"triangle",.14));
-  else if(n === "no") { tone(200,0,.25,"sawtooth",.1); tone(150,.15,.3,"sawtooth",.1); }
-  else if(n === "beep") tone(900,0,.08,"square",.05);
+  if(k === "ok") [660,880,1320].forEach((f,i)=>tone(f,i*.09,.25,"triangle",.14));
+  else if(k === "no"){ tone(200,0,.25,"sawtooth",.1); tone(150,.15,.3,"sawtooth",.1); }
+  else if(k === "beep") tone(900,0,.08,"square",.05);
+  else if(k === "tick") tone(500,0,.05,"square",.04);
+  else if(k === "over") [392,330,262,196].forEach((f,i)=>tone(f,i*.25,.3,"sawtooth",.1));
 }
 function say(text, small){
   clearInterval(typer); $("hint").textContent = small || "";
@@ -167,128 +175,207 @@ document.addEventListener("pointermove", e => {
   const t = `${dx/d*k}px ${dy/d*k}px`; $("pl").style.translate = t; $("pr").style.translate = t;
 });
 
-/* ---------- find a random photo and objects in it ---------- */
-function loadImg(url){
-  return new Promise((res,rej)=>{ const im = new Image(); im.crossOrigin = "anonymous"; im.onload = () => res(im); im.onerror = rej; im.src = url; });
+/* ---------- difficulty: everything ramps up with n (rounds played) ---------- */
+const params = n => ({
+  time: Math.max(14, 45 - n*2),
+  tries: n < 5 ? 3 : n < 12 ? 2 : 1,
+  minArea: Math.max(.004, .02 - n*.0012),
+  minScore: n < 6 ? .6 : .5,
+  hints: n < 4 ? 3 : n < 9 ? 2 : n < 15 ? 1 : 0
+});
+function chooseType(n){
+  const pool = n < 2 ? ["name"] : n < 4 ? ["name","letter","color"] : n < 8 ? ["letter","color","size"] : ["letter","color","size","size","color"];
+  return pick(pool);
 }
+
+/* ---------- photos, detection, colors ---------- */
+const loadImg = url => new Promise((res,rej)=>{ const im = new Image(); im.crossOrigin = "anonymous"; im.onload = () => res(im); im.onerror = rej; im.src = url; });
 async function getModel(){
   if(model) return model;
   if(!window.cocoSsd) throw new Error("The robot brain could not load. Check your connection and reload.");
   model = await cocoSsd.load(); return model;
 }
-async function findImage(){
+async function fetchImg(need, P){
   await getModel();
-  for(let a = 0; a < 10; a++){
+  for(let a = 0; a < 6; a++){
     try{
-      const q = pick(QUERIES), off = Math.floor(Math.random()*80);
+      const q = pick(QUERIES), off = Math.floor(Math.random()*60);
       const url = "https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=30&gsroffset=" + off +
         "&gsrsearch=" + encodeURIComponent(q + " filetype:bitmap") + "&prop=imageinfo&iiprop=url|mime&iiurlwidth=800";
       const j = await (await fetch(url)).json();
       const pages = Object.values((j.query && j.query.pages) || {}).filter(p => p.imageinfo && p.imageinfo[0].mime === "image/jpeg" && p.imageinfo[0].thumburl);
       if(!pages.length) continue;
       const ii = pick(pages).imageinfo[0], img = await loadImg(ii.thumburl);
+      if(need === 0) return { img, dets:[], page:ii.descriptionurl };
       const area = img.naturalWidth*img.naturalHeight;
-      const dets = (await model.detect(img)).filter(d => d.score > .6 && d.bbox[2]*d.bbox[3]/area > .015 && d.bbox[2]*d.bbox[3]/area < .7);
-      if(dets.length) return { img, dets, page: ii.descriptionurl };
+      const dets = (await model.detect(img, 30)).filter(d => { const r = d.bbox[2]*d.bbox[3]/area; return d.score > P.minScore && r > P.minArea && r < .7; });
+      if(dets.length >= need) return { img, dets, page:ii.descriptionurl };
     }catch(e){}
   }
-  throw new Error("The robot couldn't find a good picture. Please try again.");
+  throw new Error("no picture");
 }
-function colorName(img, b){
-  const c = document.createElement("canvas"), w = 24, h = 24; c.width = w; c.height = h;
-  const x = c.getContext("2d"); let r = 0, g = 0, bl = 0;
-  try{
-    x.drawImage(img, b[0] + b[2]*.25, b[1] + b[3]*.25, b[2]*.5, b[3]*.5, 0, 0, w, h);
-    const d = x.getImageData(0,0,w,h).data, n = d.length/4;
-    for(let i=0;i<d.length;i+=4){ r += d[i]; g += d[i+1]; bl += d[i+2]; }
-    r /= n; g /= n; bl /= n;
-  }catch(e){ return null; }
-  const mx = Math.max(r,g,bl), mn = Math.min(r,g,bl), l = (mx+mn)/510, s = mx === mn ? 0 : (mx-mn)/(255 - Math.abs(mx+mn-255));
-  let h2 = 0; if(mx !== mn){ const d = mx-mn; h2 = mx === r ? ((g-bl)/d + 6) % 6 : mx === g ? (bl-r)/d + 2 : (r-g)/d + 4; h2 *= 60; }
-  if(l < .15) return "black"; if(l > .85) return "white"; if(s < .15) return l > .6 ? "light grey" : "grey";
-  if(h2 < 15 || h2 >= 345) return l > .7 ? "pink" : "red";
-  if(h2 < 40) return l < .4 ? "brown" : "orange"; if(h2 < 70) return "yellow"; if(h2 < 165) return "green";
-  if(h2 < 255) return "blue"; if(h2 < 300) return "purple"; return "pink";
+function rgbName(r,g,b){
+  const mx = Math.max(r,g,b), mn = Math.min(r,g,b), l = (mx+mn)/510, s = mx === mn ? 0 : (mx-mn)/(255 - Math.abs(mx+mn-255));
+  let h = 0; if(mx !== mn){ const d = mx-mn; h = mx === r ? ((g-b)/d + 6) % 6 : mx === g ? (b-r)/d + 2 : (r-g)/d + 4; h *= 60; }
+  if(l < .15) return "black"; if(l > .85) return "white"; if(s < .2) return l > .6 ? "light grey" : "grey";
+  if(h < 15 || h >= 345) return l > .7 ? "pink" : "red";
+  if(h < 40) return l < .4 ? "brown" : "orange"; if(h < 70) return "yellow"; if(h < 165) return "green";
+  if(h < 255) return "blue"; if(h < 300) return "purple"; return "pink";
+}
+const GW = 32, GH = 24;
+function colorGrid(img, b){
+  const c = document.createElement("canvas"), x = c.getContext("2d");
+  if(b){ c.width = c.height = 16; x.drawImage(img, b[0]+b[2]*.25, b[1]+b[3]*.25, b[2]*.5, b[3]*.5, 0, 0, 16, 16); }
+  else { c.width = GW; c.height = GH; x.drawImage(img, 0, 0, GW, GH); }
+  const d = x.getImageData(0,0,c.width,c.height).data, names = [];
+  if(b){ let r = 0, g = 0, bl = 0, k = d.length/4; for(let i=0;i<d.length;i+=4){ r += d[i]; g += d[i+1]; bl += d[i+2]; } return rgbName(r/k,g/k,bl/k); }
+  for(let i=0;i<d.length;i+=4) names.push(rgbName(d[i],d[i+1],d[i+2]));
+  return names;
+}
+const posName = (cx,cy) => (cy < .38 ? "top" : cy > .62 ? "bottom" : "middle") + " " + (cx < .38 ? "left" : cx > .62 ? "right" : "centre");
+
+/* ---------- build a puzzle of a given type ---------- */
+function addBoxes(ov, img, arr){
+  arr.forEach(d => {
+    const b = document.createElement("div"); b.className = "box";
+    b.style.left = d.bbox[0]/img.naturalWidth*100 + "%"; b.style.top = d.bbox[1]/img.naturalHeight*100 + "%";
+    b.style.width = d.bbox[2]/img.naturalWidth*100 + "%"; b.style.height = d.bbox[3]/img.naturalHeight*100 + "%";
+    b.innerHTML = "<b></b>"; b.firstChild.textContent = d.class; ov.appendChild(b);
+  });
+}
+const inBox = (d,x,y,pad) => x >= d.bbox[0]-pad && x <= d.bbox[0]+d.bbox[2]+pad && y >= d.bbox[1]-pad && y <= d.bbox[1]+d.bbox[3]+pad;
+async function tryType(t, P){
+  const f = await fetchImg(t === "color" ? 0 : t === "size" ? 3 : 1, P), img = f.img, W = img.naturalWidth, H = img.naturalHeight, pad = Math.max(W,H)*.015;
+  const base = { type:t, img, page:f.page, P };
+  if(t === "color"){
+    const names = colorGrid(img), cnt = {}; names.forEach(c => cnt[c] = (cnt[c]||0) + 1);
+    let opts = Object.keys(cnt).filter(c => cnt[c]/names.length > .05 && cnt[c]/names.length < .4 && !NEUTRAL.includes(c));
+    if(!opts.length) opts = Object.keys(cnt).filter(c => cnt[c]/names.length > .05 && cnt[c]/names.length < .5);
+    if(!opts.length) throw new Error("no color");
+    const col = pick(opts); let sx = 0, sy = 0, k = 0;
+    names.forEach((c,i) => { if(c === col){ sx += i%GW; sy += Math.floor(i/GW); k++; } });
+    const at = (x,y) => names[Math.min(GH-1,Math.floor(y/H*GH))*GW + Math.min(GW-1,Math.floor(x/W*GW))];
+    return Object.assign(base,{
+      text:"I spy with my little eye... something that is " + col + ".", small:"Click on anything " + col + ".", answer:"anything " + col,
+      check:(x,y) => at(x,y) === col,
+      reveal:ov => names.forEach((c,i) => { if(c === col){ const d = document.createElement("div"); d.className = "cell"; d.style.left = (i%GW)/GW*100 + "%"; d.style.top = Math.floor(i/GW)/GH*100 + "%"; d.style.width = 100/GW + "%"; d.style.height = 100/GH + "%"; ov.appendChild(d); } }),
+      hintList:["Look in the " + posName(sx/k/GW, sy/k/GH) + " of the picture.", "It covers about " + Math.round(cnt[col]/names.length*100) + " percent of the picture."]
+    });
+  }
+  const dets = f.dets, np = dets.filter(d => d.class !== "person"), pool = np.length && Math.random() < .85 ? np : dets;
+  if(t === "size"){
+    const sorted = dets.slice().sort((a,b) => a.bbox[2]*a.bbox[3] - b.bbox[2]*b.bbox[3]), big = Math.random() < .5, tg = big ? sorted[sorted.length-1] : sorted[0];
+    const cx = (tg.bbox[0] + tg.bbox[2]/2)/W, cy = (tg.bbox[1] + tg.bbox[3]/2)/H;
+    return Object.assign(base,{
+      text:"I spy with my little eye... the " + (big ? "BIGGEST" : "SMALLEST") + " thing I recognise.", small:"Click on it.", answer:"the " + tg.class,
+      check:(x,y) => inBox(tg,x,y,pad), reveal:ov => addBoxes(ov,img,[tg]),
+      hintList:["Look in the " + posName(cx,cy) + " of the picture.", "It's mostly " + colorGrid(img,tg.bbox) + "."]
+    });
+  }
+  const tg = pick(pool), L = tg.class[0].toUpperCase(), valid = dets.filter(d => t === "name" ? d.class === tg.class : d.class[0].toUpperCase() === L);
+  const cx = (tg.bbox[0] + tg.bbox[2]/2)/W, cy = (tg.bbox[1] + tg.bbox[3]/2)/H;
+  return Object.assign(base,{
+    text:"I spy with my little eye... " + (t === "name" ? "a " + tg.class + "." : "something beginning with " + L + "."), small:"Click on it in the picture.", answer:"the " + tg.class,
+    check:(x,y) => valid.some(d => inBox(d,x,y,pad)), reveal:ov => addBoxes(ov,img,valid),
+    hintList:["It's mostly " + colorGrid(img,tg.bbox) + ".", "Look in the " + posName(cx,cy) + " of the picture.", "Its name has " + tg.class.replace(/ /g,"").length + " letters."]
+  });
+}
+async function buildPuzzle(n){
+  const P = params(n), order = [chooseType(n),"letter","name"].filter((v,i,a) => a.indexOf(v) === i);
+  for(const t of order){ try{ const p = await tryType(t,P); p.n = n; return p; }catch(e){} }
+  throw new Error("The robot couldn't find a good picture. Please try again.");
 }
 
 /* ---------- game ---------- */
-function paint(){ $("round").textContent = round; $("score").textContent = score; $("tries").textContent = Math.max(0, 3 - wrong); }
+function paint(){
+  $("lvl").textContent = n + 1; $("score").textContent = score;
+  $("lives").textContent = "\u2764\uFE0F".repeat(lives) + "\uD83D\uDDA4".repeat(Math.max(0,3-lives));
+  $("tries").textContent = cur ? Math.max(0, cur.P.tries - wrong) : "-";
+}
 function setBusy(on){ busy = on; $("hintBtn").disabled = on; $("skipBtn").disabled = on; }
+function stopTimer(){ clearInterval(tIv); }
+function startTimer(sec){
+  stopTimer(); tEnd = performance.now() + sec*1000; $("tbar").classList.remove("hidden");
+  tIv = setInterval(() => {
+    const left = (tEnd - performance.now())/1000, f = $("tfill");
+    f.style.width = Math.max(0, left/sec*100) + "%"; f.style.background = left/sec < .25 ? "var(--down)" : left/sec < .5 ? "var(--gold)" : "var(--up)";
+    if(left < 5 && Math.ceil(left) !== Math.ceil(left + .1)) sfx("tick");
+    if(left <= 0){ stopTimer(); if(!resolved) lose("Time's up!"); }
+  }, 100);
+}
 async function nextRound(){
-  $("err").textContent = ""; $("nextBtn").classList.add("hidden"); $("hintBtn").classList.remove("hidden"); $("skipBtn").classList.remove("hidden");
-  if(round >= ROUNDS) return finish();
-  round++; wrong = 0; hints = 0; cur = null; paint(); setBusy(true);
-  $("game").classList.remove("hidden"); $("credit").textContent = "";
+  $("err").textContent = ""; $("nextBtn").classList.add("hidden"); $("skipBtn").classList.remove("hidden");
+  if(lives <= 0) return finish();
+  cur = null; wrong = 0; hintsUsed = 0; resolved = true; paint(); setBusy(true);
+  $("game").classList.remove("hidden"); $("credit").textContent = ""; $("tbar").classList.add("hidden");
   $("stage").innerHTML = '<div class="load">Spyro is looking for a picture...</div>';
   try{
-    const f = await findImage(); cur = f;
-    const t = pick(f.dets); cur.target = t; cur.letter = t.class[0].toUpperCase();
-    cur.valid = f.dets.filter(d => d.class[0].toUpperCase() === cur.letter);
-    $("stage").innerHTML = ""; $("stage").appendChild(f.img);
+    const job = pending && pending.n === n ? pending.p : buildPuzzle(n); pending = null;
+    const p = await job; cur = p; resolved = false;
+    $("stage").innerHTML = ""; $("stage").appendChild(p.img);
     const ov = document.createElement("div"); ov.className = "ov"; ov.id = "ov"; ov.onclick = clicked; $("stage").appendChild(ov);
-    $("credit").innerHTML = 'Photo from <a href="' + f.page + '" target="_blank" rel="noopener">Wikimedia Commons</a>';
-    say("I spy with my little eye... something beginning with " + cur.letter + ".", "Click on it in the picture.");
-    setBusy(false);
+    $("credit").innerHTML = 'Photo from <a href="' + p.page + '" target="_blank" rel="noopener">Wikimedia Commons</a>';
+    $("hintBtn").classList.toggle("hidden", p.P.hints === 0);
+    say(p.text, p.small); paint(); setBusy(false); startTimer(p.P.time);
+    pending = { n:n+1, p:buildPuzzle(n+1) }; pending.p.catch(()=>{});
   }catch(e){
-    $("stage").innerHTML = ""; $("err").textContent = e.message; say("Oh no, my circuits got tangled."); $("nextBtn").textContent = "Try again"; $("nextBtn").classList.remove("hidden"); round--;
+    $("stage").innerHTML = ""; $("err").textContent = e.message; say("Oh no, my circuits got tangled.");
+    $("nextBtn").textContent = "Try again"; $("nextBtn").classList.remove("hidden"); $("skipBtn").classList.add("hidden");
   }
 }
 function mark(x,y,ok){
   const m = document.createElement("div"); m.className = "mark " + (ok ? "ok" : "no"); m.textContent = ok ? "\u2713" : "\u2715";
   m.style.left = (x/cur.img.naturalWidth*100) + "%"; m.style.top = (y/cur.img.naturalHeight*100) + "%"; $("ov").appendChild(m);
 }
-function reveal(){
-  cur.valid.forEach(d => {
-    const b = document.createElement("div"); b.className = "box"; const n = cur.img;
-    b.style.left = d.bbox[0]/n.naturalWidth*100 + "%"; b.style.top = d.bbox[1]/n.naturalHeight*100 + "%";
-    b.style.width = d.bbox[2]/n.naturalWidth*100 + "%"; b.style.height = d.bbox[3]/n.naturalHeight*100 + "%";
-    b.innerHTML = "<b></b>"; b.firstChild.textContent = d.class; $("ov").appendChild(b);
-  });
-  $("ov").style.pointerEvents = "none"; $("hintBtn").classList.add("hidden"); $("skipBtn").classList.add("hidden");
-  $("nextBtn").textContent = round >= ROUNDS ? "See results" : "Next round"; $("nextBtn").classList.remove("hidden");
+function endRound(){
+  resolved = true; stopTimer(); cur.reveal($("ov")); n++; $("ov").style.pointerEvents = "none";
+  $("hintBtn").classList.add("hidden"); $("skipBtn").classList.add("hidden"); paint();
+  $("nextBtn").textContent = lives <= 0 ? "See results" : "Next round"; $("nextBtn").classList.remove("hidden");
+}
+function win(){
+  const left = Math.max(0, (tEnd - performance.now())/1000), mult = Math.min(4, 1 + streak*.5);
+  const pts = Math.round((Math.max(2, 10 + n - hintsUsed*3) + left) * mult);
+  score += pts; streak++; sfx("ok");
+  say(pick(["Yes! That's it!","Beep boop, correct!","You spotted it!"]) + " +" + pts + " points" + (mult > 1 ? " (x" + mult + " streak)" : "") + ".");
+  endRound();
+}
+function lose(why){
+  lives--; streak = 0; sfx("no");
+  say(why + " It was " + cur.answer + ". " + (lives > 0 ? "You have " + lives + (lives === 1 ? " life" : " lives") + " left." : "That was your last life!"));
+  endRound();
 }
 function clicked(e){
-  if(busy || !cur) return;
+  if(busy || !cur || resolved) return;
   const r = $("ov").getBoundingClientRect(), x = (e.clientX - r.left)*cur.img.naturalWidth/r.width, y = (e.clientY - r.top)*cur.img.naturalHeight/r.height;
-  const pad = Math.max(cur.img.naturalWidth, cur.img.naturalHeight)*.015;
-  const hit = cur.valid.some(d => x >= d.bbox[0]-pad && x <= d.bbox[0]+d.bbox[2]+pad && y >= d.bbox[1]-pad && y <= d.bbox[1]+d.bbox[3]+pad);
-  mark(x,y,hit);
-  if(hit){
-    const pts = Math.max(1, 3 - wrong - hints); score += pts; paint(); sfx("ok");
-    say("Yes! That's the " + cur.target.class + "! You got " + pts + " point" + (pts > 1 ? "s" : "") + ".");
-    reveal();
-  } else {
-    wrong++; paint(); sfx("no");
-    if(wrong >= 3){ say("Out of tries! It was the " + cur.target.class + ". Look, I'll show you."); reveal(); }
-    else say(pick(["Nope, try again!","Not quite!","Beep boop, wrong spot!"]), 3 - wrong + " tries left.");
-  }
+  const hit = cur.check(x,y); mark(x,y,hit);
+  if(hit) return win();
+  wrong++; paint(); sfx("no");
+  if(wrong >= cur.P.tries) lose("Out of tries!");
+  else say(pick(["Nope, try again!","Not quite!","Beep boop, wrong spot!"]), (cur.P.tries - wrong) + " tries left.");
 }
 function hint(){
-  if(busy || !cur) return;
-  const d = cur.target, b = d.bbox, n = cur.img;
-  const cx = (b[0] + b[2]/2)/n.naturalWidth, cy = (b[1] + b[3]/2)/n.naturalHeight;
-  const pos = (cy < .38 ? "top" : cy > .62 ? "bottom" : "middle") + " " + (cx < .38 ? "left" : cx > .62 ? "right" : "centre");
-  const col = colorName(n, b);
-  hints++;
-  if(hints === 1 && col) say("Here's a clue: it's mostly " + col + ".");
-  else if(hints <= 2) say("Another clue: look in the " + pos + " of the picture.");
-  else say("Last clue: its name has " + d.class.replace(/ /g,"").length + " letters.");
-  if(hints >= 3) $("hintBtn").disabled = true;
+  if(busy || !cur || resolved) return;
+  const list = cur.hintList.slice(0, cur.P.hints);
+  if(hintsUsed >= list.length) return;
+  say("Clue: " + list[hintsUsed]); hintsUsed++;
+  if(hintsUsed >= list.length) $("hintBtn").disabled = true;
 }
-function giveUp(){ if(busy || !cur) return; say("It was the " + cur.target.class + "! Better luck next time."); sfx("no"); reveal(); }
+function giveUp(){ if(busy || !cur || resolved) return; lose("Giving up?"); }
 function finish(){
-  $("game").classList.add("hidden"); $("final").classList.remove("hidden"); $("fs").textContent = score;
-  const m = score >= 13 ? "You have eagle eyes! I'm impressed." : score >= 8 ? "Great spying! You're a pro." : score >= 4 ? "Not bad. Keep practising!" : "Hmm. Maybe try wearing glasses?";
-  $("fnote").textContent = m; say(m);
+  stopTimer(); sfx("over"); $("game").classList.add("hidden"); $("tbar").classList.add("hidden"); $("final").classList.remove("hidden"); $("fs").textContent = score;
+  const nb = score > best; if(nb){ best = score; try{ localStorage.setItem("ispy_best", score); }catch(e){} }
+  const m = "You reached level " + n + ". " + (nb ? "New high score!" : "High score: " + best + ".");
+  $("fnote").textContent = m; say("Game over. " + m);
 }
 async function start(){
-  $("startBox").classList.add("hidden"); $("final").classList.add("hidden"); round = 0; score = 0; $("err").textContent = "";
+  $("startBox").classList.add("hidden"); $("final").classList.add("hidden"); n = 0; score = 0; lives = 3; streak = 0; pending = null; cur = null; $("err").textContent = "";
   say("Waking up my robot brain... this takes a moment."); setBusy(true); paint();
   try{ await getModel(); }catch(e){ $("err").textContent = e.message; $("startBox").classList.remove("hidden"); return; }
   nextRound();
 }
 $("startBtn").onclick = start; $("again").onclick = start;
 $("nextBtn").onclick = nextRound; $("hintBtn").onclick = hint; $("skipBtn").onclick = giveUp;
+paint();
 </script>
 </body>
 </html>
