@@ -1,23 +1,26 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>I Spy</title>
+<title>I Spy — Endless AI Challenge</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js"></script>
 <style>
 :root{
-  --bg:#f4f0ff;--surface:#ffffff;--ink:#1b1740;--muted:#6a649a;--line:#ddd6f7;
-  --up:#14b874;--down:#f0405a;--gold:#ffcf3f;--pink:#ff6b9d;--shadow:0 6px 0 rgba(27,23,64,.12);
+  --bg:#f4f0ff;--surface:#fff;--ink:#1b1740;--muted:#6a649a;
+  --line:#ddd6f7;--up:#14b874;--down:#f0405a;--gold:#ffcf3f;
+  --pink:#ff6b9d;--shadow:0 6px 0 rgba(27,23,64,.12);
   --f:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
 }
-@media (prefers-color-scheme:dark){
+@media(prefers-color-scheme:dark){
   :root:not([data-theme="light"]){
-    --bg:#1b1740;--surface:#262063;--ink:#fff7e8;--muted:#b3acd9;--line:#3b3490;
-    --up:#3ddc97;--down:#ff5d73;--shadow:0 6px 0 rgba(0,0,0,.28);
+    --bg:#1b1740;--surface:#262063;--ink:#fff7e8;
+    --muted:#b3acd9;--line:#3b3490;--up:#3ddc97;
+    --down:#ff5d73;--shadow:0 6px 0 rgba(0,0,0,.28);
   }
 }
 *{box-sizing:border-box}
@@ -38,16 +41,12 @@ h1{font-size:clamp(2.2rem,8vw,3.6rem);margin:0 0 4px;font-weight:800;letter-spac
 .btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
 .btn:not(:disabled):active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
 .row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}
-
-/* robot + bubble */
 .botrow{display:flex;gap:14px;align-items:center;margin-bottom:18px}
 .robot{width:110px;flex:none;overflow:visible}
 .robot *{stroke:var(--ink)}
-.bubble{position:relative;flex:1;background:var(--surface);border:4px solid var(--line);border-radius:20px;padding:16px 18px;font-size:1.25rem;font-weight:800;line-height:1.3;min-height:84px;box-shadow:var(--shadow)}
+.bubble{position:relative;flex:1;background:var(--surface);border:4px solid var(--line);border-radius:20px;padding:16px 18px;font-size:1.2rem;font-weight:800;line-height:1.3;min-height:84px;box-shadow:var(--shadow)}
 .bubble::before{content:"";position:absolute;left:-14px;top:34px;width:22px;height:22px;background:var(--surface);border-left:4px solid var(--line);border-bottom:4px solid var(--line);transform:rotate(45deg)}
 .bubble small{display:block;margin-top:6px;color:var(--muted);font-weight:500;font-size:.9rem}
-
-/* picture */
 .stage{position:relative;background:var(--surface);border:4px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);min-height:220px;display:grid;place-items:center}
 .stage img{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain}
 .ov{position:absolute;inset:0;cursor:crosshair}
@@ -58,12 +57,10 @@ h1{font-size:clamp(2.2rem,8vw,3.6rem);margin:0 0 4px;font-weight:800;letter-spac
 .load{padding:50px 16px;text-align:center;color:var(--muted);font-weight:800}
 .credit{font-size:.8rem;color:var(--muted);text-align:center;margin-top:8px}
 .credit a{color:inherit}
-.final{background:var(--surface);border:4px solid var(--line);border-radius:20px;padding:26px 16px;text-align:center;box-shadow:var(--shadow)}
-.final .big{font-size:4rem;font-weight:800;color:var(--pink);line-height:1.1}
 .err{color:var(--down);font-weight:800;text-align:center;margin-top:12px}
-
-@media (max-width:520px){.robot{width:80px}.bubble{font-size:1.05rem;padding:12px 14px}}
-@media (prefers-reduced-motion:no-preference){
+.cell{position:absolute;background:rgba(255,207,63,.6);pointer-events:none}
+@media(max-width:520px){.robot{width:80px}.bubble{font-size:1.05rem;padding:12px 14px}}
+@media(prefers-reduced-motion:no-preference){
   .eye{transform-box:fill-box;transform-origin:center;animation:blink 4.5s infinite}
   @keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
   .ant{animation:glow 1.2s infinite alternate}
@@ -75,25 +72,20 @@ h1{font-size:clamp(2.2rem,8vw,3.6rem);margin:0 0 4px;font-weight:800;letter-spac
   .robot{animation:bob 2.4s ease-in-out infinite alternate}
   @keyframes bob{to{translate:0 -6px}}
 }
-.tbar{height:14px;border-radius:999px;background:var(--surface);border:3px solid var(--line);overflow:hidden;margin-bottom:16px}
-.tbar i{display:block;height:100%;width:100%;background:var(--up)}
-.cell{position:absolute;background:rgba(255,207,63,.6);pointer-events:none}
 </style>
 </head>
 <body>
 <a class="top" href="index.html">&larr; Home</a>
 <main>
-  <h1>I spy</h1>
-  <p class="sub">The robot spies something in a photo. Find it before time runs out. It gets harder every round and you have 3 lives.</p>
+  <h1>I Spy</h1>
+  <p class="sub">Find hidden objects in challenging photos. No rounds, no timer — keep playing and build your score!</p>
 
   <div class="bar">
-    <span class="pill"><em>Level</em><span id="lvl">1</span></span>
     <span class="pill"><em>Score</em><span id="score">0</span></span>
-    <span class="pill" id="lives" aria-label="Lives"></span>
-    <span class="pill"><em>Tries</em><span id="tries">3</span></span>
+    <span class="pill"><em>Streak</em><span id="streak">0</span></span>
+    <span class="pill"><em>Best</em><span id="best">0</span></span>
     <button class="btn ghost" id="snd" style="padding:4px 14px" aria-label="Toggle sound">&#128266;</button>
   </div>
-  <div class="tbar hidden" id="tbar"><i id="tfill"></i></div>
 
   <div class="botrow" id="bot">
     <svg class="robot" viewBox="0 0 140 160" aria-hidden="true">
@@ -110,271 +102,590 @@ h1{font-size:clamp(2.2rem,8vw,3.6rem);margin:0 0 4px;font-weight:800;letter-spac
       <rect x="35" y="118" width="70" height="38" rx="12" fill="#ffcf3f" stroke-width="5"/>
       <circle cx="70" cy="137" r="6" fill="#ff6b9d" stroke-width="3"/>
     </svg>
-    <div class="bubble"><span id="say">Hi! I'm Spyro the robot. Ready to play?</span><small id="hint"></small></div>
+    <div class="bubble"><span id="say">Hi! I'm Spyro the robot. Ready for a tricky search?</span><small id="hint"></small></div>
   </div>
 
-  <div id="startBox" class="row"><button class="btn" id="startBtn">Start game</button></div>
+  <div id="startBox" class="row"><button class="btn" id="startBtn">Start searching</button></div>
 
   <div id="game" class="hidden">
     <div class="stage" id="stage"></div>
     <div class="credit" id="credit"></div>
     <div class="row">
       <button class="btn gold" id="hintBtn">Hint</button>
-      <button class="btn ghost" id="skipBtn">Give up</button>
-      <button class="btn hidden" id="nextBtn">Next round</button>
+      <button class="btn ghost" id="skipBtn">Skip picture</button>
+      <button class="btn hidden" id="nextBtn">Next picture</button>
     </div>
   </div>
 
-  <div id="final" class="final hidden">
-    <div>Game over</div><div class="big"><span id="fs">0</span></div>
-    <p id="fnote" class="sub"></p>
-    <button class="btn" id="again">Play again</button>
-  </div>
   <p class="err" id="err" role="alert"></p>
 </main>
 
 <script>
 const $ = id => document.getElementById(id);
 const pick = a => a[Math.floor(Math.random()*a.length)];
-const QUERIES = ["dog in park","street scene","kitchen interior","living room","city bus","bicycle on street","cat sitting","bowl of fruit","breakfast table","airport","railway station","farm animals","horse in field","office desk","bedroom","market stall","parking lot cars","birthday party","picnic","playground","zoo","beach people","restaurant table","kids playing","elephant","giraffe","zebra","sheep grazing","cows in field","bird on branch","truck on road","motorcycle","airplane on runway","boat in harbor","tennis match","skateboard park","surfing","baseball game","cups and plates","bottles on table","laptop on desk","television room","pizza","sandwich","birthday cake","donuts","bananas","oranges","traffic lights","stop sign","bench in park","umbrellas","teddy bear","clock tower","suitcase luggage","backpack hikers","flowers in vase","toothbrush bathroom"];
-const NEUTRAL = ["grey","light grey","white","black"];
-let model = null, n = 0, score = 0, lives = 3, streak = 0, cur = null, wrong = 0, hintsUsed = 0, sound = true, busy = false, typer = 0, pending = null, tEnd = 0, tIv = 0, best = 0, resolved = true;
-try{ best = +localStorage.getItem("ispy_best") || 0; }catch(e){}
 
-/* ---------- sound + robot voice ---------- */
+const QUERIES = [
+  "cluttered workbench hand tools",
+  "mechanic workshop tools and parts",
+  "electronics repair workbench",
+  "busy supermarket shelves products",
+  "grocery store aisle products",
+  "hardware store tools display",
+  "kitchen counter utensils ingredients",
+  "messy office desk stationery",
+  "computer desk cables gadgets",
+  "garage shelves boxes equipment",
+  "train station platform signs luggage",
+  "busy city intersection cars bicycles",
+  "parking lot vehicles overhead",
+  "street market fruit vegetables",
+  "restaurant table dishes glasses",
+  "library shelves books",
+  "classroom desks supplies",
+  "science laboratory equipment",
+  "woodworking shop tools",
+  "sewing table fabric tools",
+  "craft table art supplies",
+  "photography camera equipment desk",
+  "camping gear laid out",
+  "fishing tackle equipment",
+  "boat deck ropes equipment",
+  "farm machinery shed tools",
+  "garden shed pots tools",
+  "garden vegetables watering can",
+  "flower shop buckets plants",
+  "museum display objects",
+  "antique shop objects shelves",
+  "hardware nuts bolts screws",
+  "assorted keys locks padlocks",
+  "coins stamps collection",
+  "board game pieces table",
+  "jigsaw puzzle pieces",
+  "toy cars blocks scattered",
+  "kitchen spice jars bottles",
+  "breakfast table cups plates fruit",
+  "baking ingredients utensils",
+  "laundry room baskets bottles",
+  "bathroom toiletries shelf",
+  "shoe rack footwear",
+  "suitcases backpacks luggage",
+  "bicycle repair parts",
+  "car engine parts workshop",
+  "road construction machinery cones",
+  "airport baggage carts signs",
+  "warehouse boxes pallets",
+  "shipping containers port cranes",
+  "electrical cables switches circuit boards",
+  "computer components motherboard",
+  "musical instruments on display",
+  "art studio brushes paints",
+  "sculpture workshop materials",
+  "recycling sorting bins objects",
+  "park benches bins bicycles",
+  "playground equipment empty",
+  "beach shells driftwood objects",
+  "rock collection minerals crystals",
+  "bird feeder garden objects",
+  "aquarium plants rocks fish",
+  "pet shop supplies shelves",
+  "farm tools wheelbarrow buckets",
+  "campus hallway lockers",
+  "restaurant kitchen pots pans",
+  "bakery bread pastries display",
+  "vending machines hallway",
+  "tool cabinet drawers open",
+  "storage room shelves containers",
+  "industrial control panel switches",
+  "old camera watches radios collection",
+  "market stall household goods",
+  "busy sidewalk street furniture",
+  "boat harbor ropes buoys",
+  "train interior seats handles",
+  "bus interior seats rails",
+  "airplane cockpit instruments",
+  "mechanical gears bearings parts",
+  "plumbing pipes fittings tools",
+  "paint cans rollers brushes",
+  "construction site equipment materials",
+  "glass bottles jars arranged",
+  "colorful stationery pens rulers",
+  "bookshelf objects clock vase",
+  "tabletop assorted everyday objects"
+];
+
+const NEUTRAL = ["grey","light grey","white","black"];
+let model = null, n = 0, score = 0, streak = 0;
+let cur = null, hintsUsed = 0, sound = true, busy = false;
+let typer = 0, pending = null, best = 0, resolved = true;
+
+try { best = +localStorage.getItem("ispy_best") || 0; } catch(e) {}
+
+/* Sound effects */
 let ac = null;
+
 function tone(f,t0,d,type,v){
   try{
-    ac = ac || new (window.AudioContext || window.webkitAudioContext)(); if(ac.state === "suspended") ac.resume();
-    const t = ac.currentTime + t0, o = ac.createOscillator(), g = ac.createGain();
-    o.type = type; o.frequency.setValueAtTime(f,t); g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(.0001,t+d);
-    o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t+d+.02);
+    ac = ac || new (window.AudioContext || window.webkitAudioContext)();
+    if(ac.state === "suspended") ac.resume();
+    const t = ac.currentTime + t0;
+    const o = ac.createOscillator(), g = ac.createGain();
+    o.type = type;
+    o.frequency.setValueAtTime(f,t);
+    g.gain.setValueAtTime(v,t);
+    g.gain.exponentialRampToValueAtTime(.0001,t+d);
+    o.connect(g); g.connect(ac.destination);
+    o.start(t); o.stop(t+d+.02);
   }catch(e){}
 }
+
 function sfx(k){
   if(!sound) return;
   if(k === "ok") [660,880,1320].forEach((f,i)=>tone(f,i*.09,.25,"triangle",.14));
   else if(k === "no"){ tone(200,0,.25,"sawtooth",.1); tone(150,.15,.3,"sawtooth",.1); }
   else if(k === "beep") tone(900,0,.08,"square",.05);
-  else if(k === "tick") tone(500,0,.05,"square",.04);
-  else if(k === "over") [392,330,262,196].forEach((f,i)=>tone(f,i*.25,.3,"sawtooth",.1));
 }
+
 function say(text, small){
-  clearInterval(typer); $("hint").textContent = small || "";
-  const el = $("say"), bot = $("bot"); el.textContent = "";
-  let i = 0; bot.classList.add("talk");
+  clearInterval(typer);
+  $("hint").textContent = small || "";
+  const el = $("say"), bot = $("bot");
+  el.textContent = "";
+  let i = 0;
+  bot.classList.add("talk");
+
   if(sound && "speechSynthesis" in window){
-    try{ speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(text.replace(/\.\.\./g,",")); u.pitch = .7; u.rate = .95; speechSynthesis.speak(u); }catch(e){}
+    try{
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text.replace(/\.\.\./g,","));
+      u.pitch = .7; u.rate = .95;
+      speechSynthesis.speak(u);
+    }catch(e){}
   }
-  typer = setInterval(()=>{ el.textContent = text.slice(0, ++i); if(i % 3 === 0) sfx("beep"); if(i >= text.length){ clearInterval(typer); bot.classList.remove("talk"); } }, 32);
+
+  typer = setInterval(()=>{
+    el.textContent = text.slice(0,++i);
+    if(i % 3 === 0) sfx("beep");
+    if(i >= text.length){
+      clearInterval(typer);
+      bot.classList.remove("talk");
+    }
+  },32);
 }
-$("snd").onclick = () => { sound = !sound; $("snd").innerHTML = sound ? "&#128266;" : "&#128263;"; if(!sound && "speechSynthesis" in window) speechSynthesis.cancel(); };
+
+$("snd").onclick = () => {
+  sound = !sound;
+  $("snd").innerHTML = sound ? "&#128266;" : "&#128263;";
+  if(!sound && "speechSynthesis" in window) speechSynthesis.cancel();
+};
+
 document.addEventListener("pointermove", e => {
-  const r = $("pl").ownerSVGElement.getBoundingClientRect(), cx = r.left + r.width/2, cy = r.top + r.height*.4;
-  const dx = e.clientX - cx, dy = e.clientY - cy, d = Math.hypot(dx,dy) || 1, k = Math.min(5, d/40);
-  const t = `${dx/d*k}px ${dy/d*k}px`; $("pl").style.translate = t; $("pr").style.translate = t;
+  const r = $("pl").ownerSVGElement.getBoundingClientRect();
+  const cx = r.left + r.width/2, cy = r.top + r.height*.4;
+  const dx = e.clientX-cx, dy = e.clientY-cy, d = Math.hypot(dx,dy)||1;
+  const k = Math.min(5,d/40);
+  const t = `${dx/d*k}px ${dy/d*k}px`;
+  $("pl").style.translate = t;
+  $("pr").style.translate = t;
 });
 
-/* ---------- difficulty: everything ramps up with n (rounds played) ---------- */
+/* Endless difficulty: smaller objects become eligible as you play */
 const params = n => ({
-  time: Math.max(14, 45 - n*2),
-  tries: n < 5 ? 3 : n < 12 ? 2 : 1,
-  minArea: Math.max(.004, .02 - n*.0012),
-  minScore: n < 6 ? .6 : .5,
-  hints: n < 4 ? 3 : n < 9 ? 2 : n < 15 ? 1 : 0
+  minArea: Math.max(.0015,.012-n*.00035),
+  minScore: Math.max(.38,.52-n*.008),
+  hints: 3
 });
+
 function chooseType(n){
-  const pool = n < 2 ? ["name"] : n < 4 ? ["name","letter","color"] : n < 8 ? ["letter","color","size"] : ["letter","color","size","size","color"];
+  const pool = n < 3
+    ? ["name","letter","color"]
+    : ["name","letter","color","size","size"];
   return pick(pool);
 }
 
-/* ---------- photos, detection, colors ---------- */
-const loadImg = url => new Promise((res,rej)=>{ const im = new Image(); im.crossOrigin = "anonymous"; im.onload = () => res(im); im.onerror = rej; im.src = url; });
+/* Photo loading and AI detection */
+const loadImg = url => new Promise((res,rej)=>{
+  const im = new Image();
+  im.crossOrigin = "anonymous";
+  im.onload = () => res(im);
+  im.onerror = rej;
+  im.src = url;
+});
+
 async function getModel(){
   if(model) return model;
-  if(!window.cocoSsd) throw new Error("The robot brain could not load. Check your connection and reload.");
-  model = await cocoSsd.load(); return model;
+  if(!window.cocoSsd) throw new Error("The AI model could not load. Check your internet connection and reload.");
+  model = await cocoSsd.load();
+  return model;
 }
-async function fetchImg(need, P){
+
+async function fetchImg(need,P){
   await getModel();
-  for(let a = 0; a < 6; a++){
+
+  for(let a=0;a<14;a++){
     try{
-      const q = pick(QUERIES), off = Math.floor(Math.random()*60);
-      const url = "https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=30&gsroffset=" + off +
-        "&gsrsearch=" + encodeURIComponent(q + " filetype:bitmap") + "&prop=imageinfo&iiprop=url|mime&iiurlwidth=800";
+      const q = pick(QUERIES), off = Math.floor(Math.random()*100);
+      const url =
+        "https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=50&gsroffset=" +
+        off + "&gsrsearch=" + encodeURIComponent(q + " filetype:bitmap") +
+        "&prop=imageinfo&iiprop=url|mime&iiurlwidth=800";
+
       const j = await (await fetch(url)).json();
-      const pages = Object.values((j.query && j.query.pages) || {}).filter(p => p.imageinfo && p.imageinfo[0].mime === "image/jpeg" && p.imageinfo[0].thumburl);
+      const pages = Object.values((j.query && j.query.pages)||{}).filter(p=>{
+        if(!p.imageinfo || !p.imageinfo[0] ||
+           p.imageinfo[0].mime !== "image/jpeg" ||
+           !p.imageinfo[0].thumburl) return false;
+        const title = (p.title||"").toLowerCase();
+        return !/(logo|icon|diagram|map|chart|poster|screenshot|drawing|illustration|clipart|flag|coat.of.arms|collage|specimen|sample)/i.test(title);
+      });
+
       if(!pages.length) continue;
-      const ii = pick(pages).imageinfo[0], img = await loadImg(ii.thumburl);
-      if(need === 0) return { img, dets:[], page:ii.descriptionurl };
+      const ii = pick(pages).imageinfo[0];
+      const img = await loadImg(ii.thumburl);
+
+      if(need === 0) return {img,dets:[],page:ii.descriptionurl};
+
       const area = img.naturalWidth*img.naturalHeight;
-      const dets = (await model.detect(img, 30)).filter(d => { const r = d.bbox[2]*d.bbox[3]/area; return d.score > P.minScore && r > P.minArea && r < .7; });
-      if(dets.length >= need) return { img, dets, page:ii.descriptionurl };
+      const dets = (await model.detect(img,60)).filter(d=>{
+        const r = d.bbox[2]*d.bbox[3]/area;
+        return d.score > P.minScore && r > P.minArea && r < .82;
+      });
+
+      if(dets.length >= need) return {img,dets,page:ii.descriptionurl};
     }catch(e){}
   }
   throw new Error("no picture");
 }
+
 function rgbName(r,g,b){
-  const mx = Math.max(r,g,b), mn = Math.min(r,g,b), l = (mx+mn)/510, s = mx === mn ? 0 : (mx-mn)/(255 - Math.abs(mx+mn-255));
-  let h = 0; if(mx !== mn){ const d = mx-mn; h = mx === r ? ((g-b)/d + 6) % 6 : mx === g ? (b-r)/d + 2 : (r-g)/d + 4; h *= 60; }
-  if(l < .15) return "black"; if(l > .85) return "white"; if(s < .2) return l > .6 ? "light grey" : "grey";
-  if(h < 15 || h >= 345) return l > .7 ? "pink" : "red";
-  if(h < 40) return l < .4 ? "brown" : "orange"; if(h < 70) return "yellow"; if(h < 165) return "green";
-  if(h < 255) return "blue"; if(h < 300) return "purple"; return "pink";
+  const mx=Math.max(r,g,b), mn=Math.min(r,g,b);
+  const l=(mx+mn)/510;
+  const s=mx===mn?0:(mx-mn)/(255-Math.abs(mx+mn-255));
+  let h=0;
+  if(mx!==mn){
+    const d=mx-mn;
+    h=mx===r?((g-b)/d+6)%6:mx===g?(b-r)/d+2:(r-g)/d+4;
+    h*=60;
+  }
+  if(l<.15)return "black";
+  if(l>.85)return "white";
+  if(s<.2)return l>.6?"light grey":"grey";
+  if(h<15||h>=345)return l>.7?"pink":"red";
+  if(h<40)return l<.4?"brown":"orange";
+  if(h<70)return "yellow";
+  if(h<165)return "green";
+  if(h<255)return "blue";
+  if(h<300)return "purple";
+  return "pink";
 }
-const GW = 32, GH = 24;
-function colorGrid(img, b){
-  const c = document.createElement("canvas"), x = c.getContext("2d");
-  if(b){ c.width = c.height = 16; x.drawImage(img, b[0]+b[2]*.25, b[1]+b[3]*.25, b[2]*.5, b[3]*.5, 0, 0, 16, 16); }
-  else { c.width = GW; c.height = GH; x.drawImage(img, 0, 0, GW, GH); }
-  const d = x.getImageData(0,0,c.width,c.height).data, names = [];
-  if(b){ let r = 0, g = 0, bl = 0, k = d.length/4; for(let i=0;i<d.length;i+=4){ r += d[i]; g += d[i+1]; bl += d[i+2]; } return rgbName(r/k,g/k,bl/k); }
+
+const GW=32, GH=24;
+
+function colorGrid(img,b){
+  const c=document.createElement("canvas"), x=c.getContext("2d");
+  if(b){
+    c.width=c.height=16;
+    x.drawImage(img,b[0]+b[2]*.25,b[1]+b[3]*.25,b[2]*.5,b[3]*.5,0,0,16,16);
+  }else{
+    c.width=GW;c.height=GH;
+    x.drawImage(img,0,0,GW,GH);
+  }
+
+  const d=x.getImageData(0,0,c.width,c.height).data,names=[];
+  if(b){
+    let r=0,g=0,bl=0,k=d.length/4;
+    for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];bl+=d[i+2];}
+    return rgbName(r/k,g/k,bl/k);
+  }
   for(let i=0;i<d.length;i+=4) names.push(rgbName(d[i],d[i+1],d[i+2]));
   return names;
 }
-const posName = (cx,cy) => (cy < .38 ? "top" : cy > .62 ? "bottom" : "middle") + " " + (cx < .38 ? "left" : cx > .62 ? "right" : "centre");
 
-/* ---------- build a puzzle of a given type ---------- */
-function addBoxes(ov, img, arr){
-  arr.forEach(d => {
-    const b = document.createElement("div"); b.className = "box";
-    b.style.left = d.bbox[0]/img.naturalWidth*100 + "%"; b.style.top = d.bbox[1]/img.naturalHeight*100 + "%";
-    b.style.width = d.bbox[2]/img.naturalWidth*100 + "%"; b.style.height = d.bbox[3]/img.naturalHeight*100 + "%";
-    b.innerHTML = "<b></b>"; b.firstChild.textContent = d.class; ov.appendChild(b);
+const posName=(cx,cy)=>
+  (cy<.38?"top":cy>.62?"bottom":"middle")+" "+
+  (cx<.38?"left":cx>.62?"right":"centre");
+
+function addBoxes(ov,img,arr){
+  arr.forEach(d=>{
+    const b=document.createElement("div");
+    b.className="box";
+    b.style.left=d.bbox[0]/img.naturalWidth*100+"%";
+    b.style.top=d.bbox[1]/img.naturalHeight*100+"%";
+    b.style.width=d.bbox[2]/img.naturalWidth*100+"%";
+    b.style.height=d.bbox[3]/img.naturalHeight*100+"%";
+    b.innerHTML="<b></b>";
+    b.firstChild.textContent=d.class;
+    ov.appendChild(b);
   });
 }
-const inBox = (d,x,y,pad) => x >= d.bbox[0]-pad && x <= d.bbox[0]+d.bbox[2]+pad && y >= d.bbox[1]-pad && y <= d.bbox[1]+d.bbox[3]+pad;
-async function tryType(t, P){
-  const f = await fetchImg(t === "color" ? 0 : t === "size" ? 3 : 1, P), img = f.img, W = img.naturalWidth, H = img.naturalHeight, pad = Math.max(W,H)*.015;
-  const base = { type:t, img, page:f.page, P };
-  if(t === "color"){
-    const names = colorGrid(img), cnt = {}; names.forEach(c => cnt[c] = (cnt[c]||0) + 1);
-    let opts = Object.keys(cnt).filter(c => cnt[c]/names.length > .05 && cnt[c]/names.length < .4 && !NEUTRAL.includes(c));
-    if(!opts.length) opts = Object.keys(cnt).filter(c => cnt[c]/names.length > .05 && cnt[c]/names.length < .5);
+
+const inBox=(d,x,y,pad)=>
+  x>=d.bbox[0]-pad && x<=d.bbox[0]+d.bbox[2]+pad &&
+  y>=d.bbox[1]-pad && y<=d.bbox[1]+d.bbox[3]+pad;
+
+async function tryType(t,P){
+  const f=await fetchImg(t==="color"?0:t==="size"?3:1,P);
+  const img=f.img,W=img.naturalWidth,H=img.naturalHeight;
+  const pad=Math.max(W,H)*.015;
+  const base={type:t,img,page:f.page,P};
+
+  if(t==="color"){
+    const names=colorGrid(img),cnt={};
+    names.forEach(c=>cnt[c]=(cnt[c]||0)+1);
+    let opts=Object.keys(cnt).filter(c=>
+      cnt[c]/names.length>.05 && cnt[c]/names.length<.4 &&
+      !NEUTRAL.includes(c));
+    if(!opts.length) opts=Object.keys(cnt).filter(c=>
+      cnt[c]/names.length>.05 && cnt[c]/names.length<.5);
     if(!opts.length) throw new Error("no color");
-    const col = pick(opts); let sx = 0, sy = 0, k = 0;
-    names.forEach((c,i) => { if(c === col){ sx += i%GW; sy += Math.floor(i/GW); k++; } });
-    const at = (x,y) => names[Math.min(GH-1,Math.floor(y/H*GH))*GW + Math.min(GW-1,Math.floor(x/W*GW))];
+
+    const col=pick(opts);
+    let sx=0,sy=0,k=0;
+    names.forEach((c,i)=>{
+      if(c===col){sx+=i%GW;sy+=Math.floor(i/GW);k++;}
+    });
+    const at=(x,y)=>
+      names[Math.min(GH-1,Math.floor(y/H*GH))*GW+
+      Math.min(GW-1,Math.floor(x/W*GW))];
+
     return Object.assign(base,{
-      text:"I spy with my little eye... something that is " + col + ".", small:"Click on anything " + col + ".", answer:"anything " + col,
-      check:(x,y) => at(x,y) === col,
-      reveal:ov => names.forEach((c,i) => { if(c === col){ const d = document.createElement("div"); d.className = "cell"; d.style.left = (i%GW)/GW*100 + "%"; d.style.top = Math.floor(i/GW)/GH*100 + "%"; d.style.width = 100/GW + "%"; d.style.height = 100/GH + "%"; ov.appendChild(d); } }),
-      hintList:["Look in the " + posName(sx/k/GW, sy/k/GH) + " of the picture.", "It covers about " + Math.round(cnt[col]/names.length*100) + " percent of the picture."]
+      text:"I spy with my little eye... something that is "+col+".",
+      small:"Click on an area that is "+col+".",
+      answer:"anything "+col,
+      check:(x,y)=>at(x,y)===col,
+      reveal:ov=>names.forEach((c,i)=>{
+        if(c===col){
+          const d=document.createElement("div");
+          d.className="cell";
+          d.style.left=(i%GW)/GW*100+"%";
+          d.style.top=Math.floor(i/GW)/GH*100+"%";
+          d.style.width=100/GW+"%";
+          d.style.height=100/GH+"%";
+          ov.appendChild(d);
+        }
+      }),
+      hintList:[
+        "Look in the "+posName(sx/k/GW,sy/k/GH)+" of the picture.",
+        "It covers about "+Math.round(cnt[col]/names.length*100)+" percent of the picture."
+      ]
     });
   }
-  const dets = f.dets, np = dets.filter(d => d.class !== "person"), pool = np.length && Math.random() < .85 ? np : dets;
-  if(t === "size"){
-    const sorted = dets.slice().sort((a,b) => a.bbox[2]*a.bbox[3] - b.bbox[2]*b.bbox[3]), big = Math.random() < .5, tg = big ? sorted[sorted.length-1] : sorted[0];
-    const cx = (tg.bbox[0] + tg.bbox[2]/2)/W, cy = (tg.bbox[1] + tg.bbox[3]/2)/H;
+
+  const dets=f.dets;
+  const nonPeople=dets.filter(d=>d.class!=="person");
+  const pool=nonPeople.length?nonPeople:dets;
+
+  if(t==="size"){
+    const sorted=dets.slice().sort((a,b)=>
+      a.bbox[2]*a.bbox[3]-b.bbox[2]*b.bbox[3]);
+    const big=Math.random()<.5;
+    const tg=big?sorted[sorted.length-1]:sorted[0];
+    const cx=(tg.bbox[0]+tg.bbox[2]/2)/W;
+    const cy=(tg.bbox[1]+tg.bbox[3]/2)/H;
+
     return Object.assign(base,{
-      text:"I spy with my little eye... the " + (big ? "BIGGEST" : "SMALLEST") + " thing I recognise.", small:"Click on it.", answer:"the " + tg.class,
-      check:(x,y) => inBox(tg,x,y,pad), reveal:ov => addBoxes(ov,img,[tg]),
-      hintList:["Look in the " + posName(cx,cy) + " of the picture.", "It's mostly " + colorGrid(img,tg.bbox) + "."]
+      text:"I spy with my little eye... the "+
+        (big?"BIGGEST":"SMALLEST")+" object the robot can detect.",
+      small:"Click on it.",
+      answer:"the "+tg.class,
+      check:(x,y)=>inBox(tg,x,y,pad),
+      reveal:ov=>addBoxes(ov,img,[tg]),
+      hintList:[
+        "Look in the "+posName(cx,cy)+" of the picture.",
+        "It's mostly "+colorGrid(img,tg.bbox)+"."
+      ]
     });
   }
-  const tg = pick(pool), L = tg.class[0].toUpperCase(), valid = dets.filter(d => t === "name" ? d.class === tg.class : d.class[0].toUpperCase() === L);
-  const cx = (tg.bbox[0] + tg.bbox[2]/2)/W, cy = (tg.bbox[1] + tg.bbox[3]/2)/H;
+
+  const tg=pick(pool), L=tg.class[0].toUpperCase();
+  const valid=dets.filter(d=>
+    t==="name"?d.class===tg.class:d.class[0].toUpperCase()===L);
+  const cx=(tg.bbox[0]+tg.bbox[2]/2)/W;
+  const cy=(tg.bbox[1]+tg.bbox[3]/2)/H;
+
   return Object.assign(base,{
-    text:"I spy with my little eye... " + (t === "name" ? "a " + tg.class + "." : "something beginning with " + L + "."), small:"Click on it in the picture.", answer:"the " + tg.class,
-    check:(x,y) => valid.some(d => inBox(d,x,y,pad)), reveal:ov => addBoxes(ov,img,valid),
-    hintList:["It's mostly " + colorGrid(img,tg.bbox) + ".", "Look in the " + posName(cx,cy) + " of the picture.", "Its name has " + tg.class.replace(/ /g,"").length + " letters."]
+    text:"I spy with my little eye... "+
+      (t==="name"?"a "+tg.class+".":"an object beginning with "+L+"."),
+    small:"Click on it in the picture.",
+    answer:"the "+tg.class,
+    check:(x,y)=>valid.some(d=>inBox(d,x,y,pad)),
+    reveal:ov=>addBoxes(ov,img,valid),
+    hintList:[
+      "It's mostly "+colorGrid(img,tg.bbox)+".",
+      "Look in the "+posName(cx,cy)+" of the picture.",
+      "Its name has "+tg.class.replace(/ /g,"").length+" letters."
+    ]
   });
 }
+
 async function buildPuzzle(n){
-  const P = params(n), order = [chooseType(n),"letter","name"].filter((v,i,a) => a.indexOf(v) === i);
-  for(const t of order){ try{ const p = await tryType(t,P); p.n = n; return p; }catch(e){} }
+  const P=params(n);
+  const order=[chooseType(n),"size","letter","name","color"]
+    .filter((v,i,a)=>a.indexOf(v)===i);
+  for(const t of order){
+    try{
+      const p=await tryType(t,P);
+      p.n=n;
+      return p;
+    }catch(e){}
+  }
   throw new Error("The robot couldn't find a good picture. Please try again.");
 }
 
-/* ---------- game ---------- */
+/* Endless game */
 function paint(){
-  $("lvl").textContent = n + 1; $("score").textContent = score;
-  $("lives").textContent = "\u2764\uFE0F".repeat(lives) + "\uD83D\uDDA4".repeat(Math.max(0,3-lives));
-  $("tries").textContent = cur ? Math.max(0, cur.P.tries - wrong) : "-";
+  $("score").textContent=score;
+  $("streak").textContent=streak;
+  $("best").textContent=best;
 }
-function setBusy(on){ busy = on; $("hintBtn").disabled = on; $("skipBtn").disabled = on; }
-function stopTimer(){ clearInterval(tIv); }
-function startTimer(sec){
-  stopTimer(); tEnd = performance.now() + sec*1000; $("tbar").classList.remove("hidden");
-  tIv = setInterval(() => {
-    const left = (tEnd - performance.now())/1000, f = $("tfill");
-    f.style.width = Math.max(0, left/sec*100) + "%"; f.style.background = left/sec < .25 ? "var(--down)" : left/sec < .5 ? "var(--gold)" : "var(--up)";
-    if(left < 5 && Math.ceil(left) !== Math.ceil(left + .1)) sfx("tick");
-    if(left <= 0){ stopTimer(); if(!resolved) lose("Time's up!"); }
-  }, 100);
+
+function setBusy(on){
+  busy=on;
+  $("hintBtn").disabled=on;
+  $("skipBtn").disabled=on;
 }
+
 async function nextRound(){
-  $("err").textContent = ""; $("nextBtn").classList.add("hidden"); $("skipBtn").classList.remove("hidden");
-  if(lives <= 0) return finish();
-  cur = null; wrong = 0; hintsUsed = 0; resolved = true; paint(); setBusy(true);
-  $("game").classList.remove("hidden"); $("credit").textContent = ""; $("tbar").classList.add("hidden");
-  $("stage").innerHTML = '<div class="load">Spyro is looking for a picture...</div>';
+  $("err").textContent="";
+  $("nextBtn").classList.add("hidden");
+  $("skipBtn").classList.remove("hidden");
+  cur=null;hintsUsed=0;resolved=true;
+  paint();setBusy(true);
+  $("game").classList.remove("hidden");
+  $("credit").textContent="";
+  $("stage").innerHTML='<div class="load">Spyro is searching for a tricky photo...</div>';
+
   try{
-    const job = pending && pending.n === n ? pending.p : buildPuzzle(n); pending = null;
-    const p = await job; cur = p; resolved = false;
-    $("stage").innerHTML = ""; $("stage").appendChild(p.img);
-    const ov = document.createElement("div"); ov.className = "ov"; ov.id = "ov"; ov.onclick = clicked; $("stage").appendChild(ov);
-    $("credit").innerHTML = 'Photo from <a href="' + p.page + '" target="_blank" rel="noopener">Wikimedia Commons</a>';
-    $("hintBtn").classList.toggle("hidden", p.P.hints === 0);
-    say(p.text, p.small); paint(); setBusy(false); startTimer(p.P.time);
-    pending = { n:n+1, p:buildPuzzle(n+1) }; pending.p.catch(()=>{});
+    const job=pending&&pending.n===n?pending.p:buildPuzzle(n);
+    pending=null;
+    const p=await job;
+    cur=p;resolved=false;
+    $("stage").innerHTML="";
+    $("stage").appendChild(p.img);
+
+    const ov=document.createElement("div");
+    ov.className="ov";ov.id="ov";ov.onclick=clicked;
+    $("stage").appendChild(ov);
+
+    $("credit").innerHTML='Photo from <a href="'+p.page+
+      '" target="_blank" rel="noopener">Wikimedia Commons</a>';
+
+    $("hintBtn").classList.remove("hidden");
+    $("hintBtn").disabled=false;
+    say(p.text,p.small);
+    paint();setBusy(false);
+
+    pending={n:n+1,p:buildPuzzle(n+1)};
+    pending.p.catch(()=>{});
   }catch(e){
-    $("stage").innerHTML = ""; $("err").textContent = e.message; say("Oh no, my circuits got tangled.");
-    $("nextBtn").textContent = "Try again"; $("nextBtn").classList.remove("hidden"); $("skipBtn").classList.add("hidden");
+    $("stage").innerHTML="";
+    $("err").textContent="Couldn't find a suitable photo just now. Try again.";
+    say("My robot brain needs another search!");
+    $("nextBtn").textContent="Try again";
+    $("nextBtn").classList.remove("hidden");
+    $("skipBtn").classList.add("hidden");
+    setBusy(false);
   }
 }
+
 function mark(x,y,ok){
-  const m = document.createElement("div"); m.className = "mark " + (ok ? "ok" : "no"); m.textContent = ok ? "\u2713" : "\u2715";
-  m.style.left = (x/cur.img.naturalWidth*100) + "%"; m.style.top = (y/cur.img.naturalHeight*100) + "%"; $("ov").appendChild(m);
+  const m=document.createElement("div");
+  m.className="mark "+(ok?"ok":"no");
+  m.textContent=ok?"✓":"✕";
+  m.style.left=x/cur.img.naturalWidth*100+"%";
+  m.style.top=y/cur.img.naturalHeight*100+"%";
+  $("ov").appendChild(m);
 }
+
 function endRound(){
-  resolved = true; stopTimer(); cur.reveal($("ov")); n++; $("ov").style.pointerEvents = "none";
-  $("hintBtn").classList.add("hidden"); $("skipBtn").classList.add("hidden"); paint();
-  $("nextBtn").textContent = lives <= 0 ? "See results" : "Next round"; $("nextBtn").classList.remove("hidden");
+  resolved=true;
+  cur.reveal($("ov"));
+  $("ov").style.pointerEvents="none";
+  $("hintBtn").classList.add("hidden");
+  $("skipBtn").classList.add("hidden");
+  paint();
+  $("nextBtn").textContent="Next picture";
+  $("nextBtn").classList.remove("hidden");
 }
+
 function win(){
-  const left = Math.max(0, (tEnd - performance.now())/1000), mult = Math.min(4, 1 + streak*.5);
-  const pts = Math.round((Math.max(2, 10 + n - hintsUsed*3) + left) * mult);
-  score += pts; streak++; sfx("ok");
-  say(pick(["Yes! That's it!","Beep boop, correct!","You spotted it!"]) + " +" + pts + " points" + (mult > 1 ? " (x" + mult + " streak)" : "") + ".");
+  const mult=Math.min(4,1+streak*.25);
+  const pts=Math.round(Math.max(3,12-hintsUsed*2)*mult);
+  score+=pts;streak++;
+
+  if(score>best){
+    best=score;
+    try{localStorage.setItem("ispy_best",score);}catch(e){}
+  }
+
+  sfx("ok");
+  say(pick([
+    "Great spot!","Correct! Nice observation.","You found it!",
+    "Sharp eyes!","Beep boop, that's right!"
+  ])+" +"+pts+" points"+(mult>1?" (streak bonus!)":""));
   endRound();
 }
+
 function lose(why){
-  lives--; streak = 0; sfx("no");
-  say(why + " It was " + cur.answer + ". " + (lives > 0 ? "You have " + lives + (lives === 1 ? " life" : " lives") + " left." : "That was your last life!"));
+  streak=0;
+  sfx("no");
+  say(why+". The target was "+cur.answer+
+    ". Take a closer look at the highlighted area, then keep going!");
   endRound();
 }
+
 function clicked(e){
-  if(busy || !cur || resolved) return;
-  const r = $("ov").getBoundingClientRect(), x = (e.clientX - r.left)*cur.img.naturalWidth/r.width, y = (e.clientY - r.top)*cur.img.naturalHeight/r.height;
-  const hit = cur.check(x,y); mark(x,y,hit);
-  if(hit) return win();
-  wrong++; paint(); sfx("no");
-  if(wrong >= cur.P.tries) lose("Out of tries!");
-  else say(pick(["Nope, try again!","Not quite!","Beep boop, wrong spot!"]), (cur.P.tries - wrong) + " tries left.");
+  if(busy||!cur||resolved)return;
+  const r=$("ov").getBoundingClientRect();
+  const x=(e.clientX-r.left)*cur.img.naturalWidth/r.width;
+  const y=(e.clientY-r.top)*cur.img.naturalHeight/r.height;
+  const hit=cur.check(x,y);
+  mark(x,y,hit);
+  if(hit)return win();
+  sfx("no");
+  say(pick([
+    "Not that one — keep looking!",
+    "Close, but not quite.",
+    "Try a different object.",
+    "Nope! Study the details."
+  ]));
 }
+
 function hint(){
-  if(busy || !cur || resolved) return;
-  const list = cur.hintList.slice(0, cur.P.hints);
-  if(hintsUsed >= list.length) return;
-  say("Clue: " + list[hintsUsed]); hintsUsed++;
-  if(hintsUsed >= list.length) $("hintBtn").disabled = true;
+  if(busy||!cur||resolved)return;
+  const list=cur.hintList;
+  if(hintsUsed>=list.length)return;
+  say("Clue: "+list[hintsUsed]);
+  hintsUsed++;
+  if(hintsUsed>=list.length)$("hintBtn").disabled=true;
 }
-function giveUp(){ if(busy || !cur || resolved) return; lose("Giving up?"); }
-function finish(){
-  stopTimer(); sfx("over"); $("game").classList.add("hidden"); $("tbar").classList.add("hidden"); $("final").classList.remove("hidden"); $("fs").textContent = score;
-  const nb = score > best; if(nb){ best = score; try{ localStorage.setItem("ispy_best", score); }catch(e){} }
-  const m = "You reached level " + n + ". " + (nb ? "New high score!" : "High score: " + best + ".");
-  $("fnote").textContent = m; say("Game over. " + m);
+
+function giveUp(){
+  if(busy||!cur||resolved)return;
+  lose("Skipped");
 }
+
 async function start(){
-  $("startBox").classList.add("hidden"); $("final").classList.add("hidden"); n = 0; score = 0; lives = 3; streak = 0; pending = null; cur = null; $("err").textContent = "";
-  say("Waking up my robot brain... this takes a moment."); setBusy(true); paint();
-  try{ await getModel(); }catch(e){ $("err").textContent = e.message; $("startBox").classList.remove("hidden"); return; }
+  $("startBox").classList.add("hidden");
+  n=0;score=0;streak=0;pending=null;cur=null;
+  $("err").textContent="";
+  say("Waking up my robot brain... this may take a moment.");
+  setBusy(true);paint();
+
+  try{
+    await getModel();
+  }catch(e){
+    $("err").textContent=e.message;
+    $("startBox").classList.remove("hidden");
+    setBusy(false);
+    return;
+  }
   nextRound();
 }
-$("startBtn").onclick = start; $("again").onclick = start;
-$("nextBtn").onclick = nextRound; $("hintBtn").onclick = hint; $("skipBtn").onclick = giveUp;
+
+$("startBtn").onclick=start;
+$("nextBtn").onclick=()=>{n++;nextRound();};
+$("hintBtn").onclick=hint;
+$("skipBtn").onclick=giveUp;
 paint();
 </script>
 </body>
