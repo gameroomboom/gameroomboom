@@ -3,304 +3,476 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>I Spy With My Little Eye</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,800&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>I Spy — Object Hunt AI</title>
 <style>
-:root{--bg:#f4f0ff;--surface:#fff;--ink:#1b1740;--muted:#6a649a;--line:#ddd6f7;--up:#14b874;--down:#f0405a;--gold:#ffcf3f;--pink:#ff6b9d;--shadow:0 6px 0 rgba(27,23,64,.12);--f:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif}
-@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1b1740;--surface:#262063;--ink:#fff7e8;--muted:#b3acd9;--line:#3b3490;--up:#3ddc97;--down:#ff5d73;--shadow:0 6px 0 rgba(0,0,0,.28)}}
+:root{color-scheme:light dark;--bg:#f4f0ff;--panel:#fff;--ink:#1b1740;--muted:#6a649a;--line:#ddd6f7;--green:#14b874;--gold:#ffcf3f}
+@media(prefers-color-scheme:dark){:root{--bg:#1b1740;--panel:#262063;--ink:#fff7e8;--muted:#b3acd9;--line:#3b3490}}
 *{box-sizing:border-box}
-html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--f);font-weight:500;min-height:100vh;padding:56px 16px 40px}
-main{max-width:760px;margin:0 auto}
-.hidden{display:none!important}
-.top{position:absolute;left:16px;top:16px;font-weight:800;color:var(--muted);text-decoration:underline}
-h1{font-size:clamp(2.2rem,8vw,3.6rem);margin:0 0 4px;font-weight:800;letter-spacing:-.03em;text-align:center}
-.sub{color:var(--muted);text-align:center;margin:0 auto 20px;max-width:46ch}
-.bar{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:16px}
-.pill{background:var(--surface);border:3px solid var(--line);border-radius:999px;padding:6px 16px;font-weight:800}
-.pill em{font-style:normal;color:var(--muted);font-weight:500;margin-right:6px}
-.btn{background:var(--up);color:#0d2b1d;border:none;border-radius:14px;padding:12px 24px;font:inherit;font-weight:800;font-size:1.05rem;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.2)}
-.btn.gold{background:var(--gold);color:#1b1740}
-.btn.ghost{background:transparent;color:var(--ink);border:3px solid var(--ink);box-shadow:none;padding:9px 20px}
-.btn:disabled{opacity:.45;cursor:default}
-.btn:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
-.btn:not(:disabled):active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.2)}
-.row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-top:16px}
-.botrow{display:flex;gap:14px;align-items:center;margin-bottom:18px}
-.robot{width:110px;flex:none;overflow:visible}
-.robot *{stroke:var(--ink)}
-.bubble{position:relative;flex:1;background:var(--surface);border:4px solid var(--line);border-radius:20px;padding:16px 18px;font-size:1.25rem;font-weight:800;line-height:1.3;min-height:84px;box-shadow:var(--shadow)}
-.bubble::before{content:"";position:absolute;left:-14px;top:34px;width:22px;height:22px;background:var(--surface);border-left:4px solid var(--line);border-bottom:4px solid var(--line);transform:rotate(45deg)}
-.bubble small{display:block;margin-top:6px;color:var(--muted);font-weight:500;font-size:.9rem}
-.stage{position:relative;background:var(--surface);border:4px solid var(--line);border-radius:20px;overflow:hidden;box-shadow:var(--shadow);min-height:220px;display:grid;place-items:center}
-.stage img{display:block;width:100%;height:auto;max-height:70vh;object-fit:contain}
-.ov{position:absolute;inset:0;cursor:crosshair}
-.mark{position:absolute;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff;font-size:1.2rem;pointer-events:none}
-.mark.ok{background:var(--up)}.mark.no{background:var(--down)}
-.box{position:absolute;border:4px solid var(--gold);border-radius:6px;box-shadow:0 0 0 2px rgba(0,0,0,.5);pointer-events:none}
-.box b{position:absolute;left:-4px;top:-28px;background:var(--gold);color:#1b1740;padding:2px 8px;border-radius:6px;font-size:.85rem}
-.load{padding:50px 16px;text-align:center;color:var(--muted);font-weight:800}
-.credit{font-size:.8rem;color:var(--muted);text-align:center;margin-top:8px}
+body{margin:0;padding:48px 16px 36px;background:var(--bg);color:var(--ink);font:500 16px/1.45 system-ui,sans-serif}
+main{max-width:800px;margin:auto}
+h1{text-align:center;font-size:clamp(2.4rem,8vw,4rem);line-height:1;margin:10px 0}
+p{text-align:center;color:var(--muted)}
+.stats,.buttons{display:flex;gap:10px;justify-content:center;align-items:center;flex-wrap:wrap;margin:16px 0}
+.pill,button{border:2px solid var(--line);border-radius:14px;padding:10px 16px;font:inherit;font-weight:750}
+.pill{background:var(--panel)}
+button{background:var(--green);color:#092c1d;border:0;cursor:pointer;box-shadow:0 4px 0 #0a7148}
+button.secondary{background:var(--panel);color:var(--ink);border:2px solid var(--line);box-shadow:none}
+button:disabled{opacity:.5;cursor:default}
+.robotbox{display:flex;gap:12px;align-items:center;margin:18px 0}
+.robot{font-size:3rem}
+.bubble{flex:1;padding:16px;border:3px solid var(--line);border-radius:18px;background:var(--panel);font-weight:800;min-height:75px}
+.bubble small{display:block;color:var(--muted);font-weight:500;margin-top:5px}
+.stage{position:relative;min-height:220px;display:grid;place-items:center;background:var(--panel);border:3px solid var(--line);border-radius:18px;overflow:hidden}
+.stage img{width:100%;height:auto;max-height:72vh;object-fit:contain;display:block}
+.overlay{position:absolute;inset:0;cursor:crosshair}
+.mark{position:absolute;transform:translate(-50%,-50%);font-size:25px;font-weight:900;color:white;text-shadow:0 1px 5px #000;pointer-events:none}
+.box{position:absolute;border:3px solid var(--gold);border-radius:5px;pointer-events:none;box-shadow:0 0 0 1px #111}
+.box span{position:absolute;top:-25px;left:-3px;padding:2px 6px;background:var(--gold);color:#111;font-size:12px;white-space:nowrap}
+.credit{text-align:center;font-size:12px;margin-top:8px;color:var(--muted)}
 .credit a{color:inherit}
-.final{background:var(--surface);border:4px solid var(--line);border-radius:20px;padding:26px 16px;text-align:center;box-shadow:var(--shadow)}
-.final .big{font-size:4rem;font-weight:800;color:var(--pink);line-height:1.1}
-.err{color:var(--down);font-weight:800;text-align:center;margin-top:12px}
-@media(max-width:520px){.robot{width:80px}.bubble{font-size:1.05rem;padding:12px 14px}}
-@media(prefers-reduced-motion:no-preference){
-.eye{transform-box:fill-box;transform-origin:center;animation:blink 4.5s infinite}
-@keyframes blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
-.ant{animation:glow 1.2s infinite alternate}
-@keyframes glow{to{fill:#ffcf3f}}
-.talk #mouth{transform-box:fill-box;transform-origin:center;animation:yap .22s infinite alternate}
-@keyframes yap{to{transform:scaleY(2.6)}}
-.mark{animation:pop .3s ease-out}
-@keyframes pop{from{transform:scale(.2)}}
-.robot{animation:bob 2.4s ease-in-out infinite alternate}
-@keyframes bob{to{translate:0 -6px}}
-}
-.cell{position:absolute;background:rgba(255,207,63,.6);pointer-events:none}
+.error{color:#c22;text-align:center;font-weight:700}
+.hidden{display:none!important}
+.load{padding:48px 16px;text-align:center;color:var(--muted);font-weight:800}
 </style>
 </head>
 <body>
-<a class="top" href="index.html">&larr; Home</a>
 <main>
-<h1>I spy</h1>
-<p class="sub">Find real objects in challenging photos with open-vocabulary AI. No rounds or timer — keep playing and build your score!</p>
-<div class="bar">
-<span class="pill"><em>Score</em><span id="score">0</span></span>
-<span class="pill"><em>Streak</em><span id="streak">0</span></span>
-<span class="pill"><em>Best</em><span id="best">0</span></span>
-<span class="pill"><em>Brain</em><span id="brain">Loading</span></span>
-<button class="btn ghost" id="snd" style="padding:4px 14px" aria-label="Toggle sound">&#128266;</button>
+<h1>🔎 I Spy</h1>
+<p>Find objects in real photos. Endless play, harder targets, and no timer.</p>
+
+<div class="stats">
+<span class="pill">Score: <b id="score">0</b></span>
+<span class="pill">Streak: <b id="streak">0</b></span>
+<span class="pill">Best: <b id="best">0</b></span>
+<span class="pill">AI: <b id="brain">Not loaded</b></span>
 </div>
-<div class="botrow" id="bot">
-<svg class="robot" viewBox="0 0 140 160" aria-hidden="true">
-<line x1="70" y1="12" x2="70" y2="30" stroke-width="5"/>
-<circle class="ant" cx="70" cy="9" r="7" fill="#ff6b9d" stroke-width="4"/>
-<rect x="8" y="58" width="12" height="28" rx="5" fill="#ffcf3f" stroke-width="4"/>
-<rect x="120" y="58" width="12" height="28" rx="5" fill="#ffcf3f" stroke-width="4"/>
-<rect x="20" y="30" width="100" height="82" rx="22" fill="#5ec8ff" stroke-width="5"/>
-<circle class="eye" cx="50" cy="66" r="16" fill="#fff" stroke-width="4"/>
-<circle class="eye" cx="90" cy="66" r="16" fill="#fff" stroke-width="4"/>
-<circle id="pl" cx="50" cy="66" r="7" fill="#1b1740" stroke="none"/>
-<circle id="pr" cx="90" cy="66" r="7" fill="#1b1740" stroke="none"/>
-<rect id="mouth" x="52" y="93" width="36" height="7" rx="3.5" fill="#1b1740" stroke="none"/>
-<rect x="35" y="118" width="70" height="38" rx="12" fill="#ffcf3f" stroke-width="5"/>
-<circle cx="70" cy="137" r="6" fill="#ff6b9d" stroke-width="3"/>
-</svg>
-<div class="bubble"><span id="say">Hi! I'm Spyro the robot. Ready for a tricky search?</span><small id="hint"></small></div>
+
+<div class="robotbox">
+<div class="robot">🤖</div>
+<div class="bubble">
+<span id="say">I'm Spyro. Let's find objects, not people!</span>
+<small id="clue">Press Start to begin.</small>
 </div>
-<div id="startBox" class="row"><button class="btn" id="startBtn">Start searching</button></div>
+</div>
+
+<div id="startrow" class="buttons">
+<button id="start">Start searching</button>
+</div>
+
 <div id="game" class="hidden">
-<div class="stage" id="stage"></div>
-<div class="credit" id="credit"></div>
-<div class="row">
-<button class="btn gold" id="hintBtn">Hint</button>
-<button class="btn ghost" id="skipBtn">Give up</button>
-<button class="btn hidden" id="nextBtn">Next picture</button>
+<div id="stage" class="stage"><div class="load">Waiting…</div></div>
+<div id="credit" class="credit"></div>
+<div class="buttons">
+<button id="hint" class="secondary">Hint</button>
+<button id="skip" class="secondary">Skip picture</button>
+<button id="next" class="hidden">Next picture</button>
 </div>
 </div>
-<div id="final" class="final hidden">
-<div>Session score</div><div class="big"><span id="fs">0</span></div>
-<p id="fnote" class="sub"></p>
-<button class="btn" id="again">Keep playing</button>
-</div>
-<p class="err" id="err" role="alert"></p>
+<div id="err" class="error" role="alert"></div>
 </main>
+
 <script>
 const $=id=>document.getElementById(id);
 const pick=a=>a[Math.floor(Math.random()*a.length)];
-const QUERIES=[
-"cluttered workbench hand tools","mechanic workshop tools and parts","electronics repair workbench","busy supermarket shelves products","grocery store aisle products","hardware store tools display","kitchen counter utensils ingredients","messy office desk stationery","computer desk cables gadgets","garage shelves boxes equipment","train station platform signs luggage","busy city intersection cars bicycles","parking lot vehicles overhead","street market fruit vegetables","restaurant table dishes glasses","library shelves books","classroom desks supplies","science laboratory equipment","woodworking shop tools","sewing table fabric tools","craft table art supplies","photography camera equipment desk","camping gear laid out","fishing tackle equipment","boat deck ropes equipment","farm machinery shed tools","garden shed pots tools","garden vegetables watering can","flower shop buckets plants","museum display objects","antique shop objects shelves","hardware nuts bolts screws","assorted keys locks padlocks","coins stamps collection","board game pieces table","jigsaw puzzle pieces","toy cars blocks scattered","kitchen spice jars bottles","breakfast table cups plates fruit","baking ingredients utensils","laundry room baskets bottles","bathroom toiletries shelf","shoe rack footwear","suitcases backpacks luggage","bicycle repair parts","car engine parts workshop","road construction machinery cones","airport baggage carts signs","warehouse boxes pallets","shipping containers port cranes","electrical cables switches circuit boards","computer components motherboard","musical instruments on display","art studio brushes paints","sculpture workshop materials","recycling sorting bins objects","park benches bins bicycles","playground equipment empty","beach shells driftwood objects","rock collection minerals crystals","bird feeder garden objects","aquarium plants rocks fish","pet shop supplies shelves","farm tools wheelbarrow buckets","campus hallway lockers","restaurant kitchen pots pans","bakery bread pastries display","vending machines hallway","tool cabinet drawers open","storage room shelves containers","industrial control panel switches","old camera watches radios collection","market stall household goods","busy sidewalk street furniture","boat harbor ropes buoys","train interior seats handles","bus interior seats rails","airplane cockpit instruments","mechanical gears bearings parts","plumbing pipes fittings tools","paint cans rollers brushes","construction site equipment materials","glass bottles jars arranged","colorful stationery pens rulers","bookshelf objects clock vase","tabletop assorted everyday objects"
-];
-const NEUTRAL=["grey","light grey","white","black"];
-let model=null,detector=null,n=0,score=0,streak=0,cur=null,hintsUsed=0,sound=true,busy=false,typer=0,pending=null,best=0,resolved=true,brainMode="advanced";
-try{best=+localStorage.getItem("ispy_best")||0}catch(e){}
 
-let ac=null;
-function tone(f,t0,d,type,v){
-try{ac=ac||(new(window.AudioContext||window.webkitAudioContext)());if(ac.state==="suspended")ac.resume();const t=ac.currentTime+t0,o=ac.createOscillator(),g=ac.createGain();o.type=type;o.frequency.setValueAtTime(f,t);g.gain.setValueAtTime(v,t);g.gain.exponentialRampToValueAtTime(.0001,t+d);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+d+.02)}catch(e){}
-}
-function sfx(k){
-if(!sound)return;
-if(k==="ok")[660,880,1320].forEach((f,i)=>tone(f,i*.09,.25,"triangle",.14));
-else if(k==="no"){tone(200,0,.25,"sawtooth",.1);tone(150,.15,.3,"sawtooth",.1)}
-else if(k==="beep")tone(900,0,.08,"square",.05);
-else if(k==="tick")tone(500,0,.05,"square",.04);
-else if(k==="over")[392,330,262,196].forEach((f,i)=>tone(f,i*.25,.3,"sawtooth",.1))
-}
-function say(text,small){
-clearInterval(typer);$("hint").textContent=small||"";
-const el=$("say"),bot=$("bot");el.textContent="";let i=0;bot.classList.add("talk");
-if(sound&&"speechSynthesis"in window){try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(text.replace(/\.\.\./g,","));u.pitch=.7;u.rate=.95;speechSynthesis.speak(u)}catch(e){}}
-typer=setInterval(()=>{el.textContent=text.slice(0,++i);if(i%3===0)sfx("beep");if(i>=text.length){clearInterval(typer);bot.classList.remove("talk")}},32)
-}
-$("snd").onclick=()=>{sound=!sound;$("snd").innerHTML=sound?"&#128266;":"&#128263;";if(!sound&&"speechSynthesis"in window)speechSynthesis.cancel()};
-document.addEventListener("pointermove",e=>{
-const r=$("pl").ownerSVGElement.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height*.4;
-const dx=e.clientX-cx,dy=e.clientY-cy,d=Math.hypot(dx,dy)||1,k=Math.min(5,d/40),t=`${dx/d*k}px ${dy/d*k}px`;
-$("pl").style.translate=t;$("pr").style.translate=t
+const QUERIES=[
+"close up still life tools on workbench no people",
+"electronics components on repair bench no people",
+"hardware store tools bolts screws close up",
+"kitchen utensils on counter still life",
+"messy desk stationery gadgets no people",
+"garage tools equipment shelves empty",
+"bicycle parts tools close up",
+"industrial machine gears control panel",
+"assorted objects arranged on table still life",
+"colorful stationery pens rulers scissors",
+"fruit and vegetables display close up",
+"shelves with bottles jars products",
+"woodworking tools on bench",
+"camera equipment laid out on desk",
+"camping gear arranged on ground",
+"fishing tackle equipment close up",
+"garden tools pots watering can",
+"museum objects display case",
+"antique clocks radios cameras collection",
+"coins keys padlocks on table",
+"board game pieces dice cards",
+"toy cars and building blocks",
+"spice jars kitchen counter",
+"baking utensils and ingredients",
+"bathroom bottles toiletries shelf",
+"shoes and bags on rack",
+"car engine parts on workbench",
+"warehouse boxes pallets no workers",
+"electrical cables switches circuit boards",
+"musical instruments on display",
+"paint brushes cans and rollers",
+"plumbing pipes fittings tools",
+"glass bottles and jars still life",
+"book shelf objects clock vase",
+"screws nuts washers assorted",
+"mechanical gears bearings parts",
+"computer components motherboard",
+"hardware hand tools close up",
+"industrial control panel switches",
+"bike repair tools and parts",
+"camping lantern rope compass",
+"pottery and craft tools",
+"plants pots and garden tools",
+"restaurant table plates glasses cutlery",
+"stationery clips stapler tape dispenser",
+"tools in open tool cabinet",
+"old typewriter and desk objects",
+"bicycle wheel chain pedals close up",
+"small household objects on tabletop",
+"kitchen pans ladles whisk spatula"
+];
+
+const OBJECTS=[
+"hammer","screwdriver","wrench","pliers","drill","scissors",
+"tape measure","ruler","screw","bolt","nut","gear","bearing",
+"pipe","wire","cable","circuit board","computer mouse",
+"keyboard","monitor","phone","camera","headphones","speaker",
+"clock","watch","calculator","book","notebook","pen","pencil",
+"paintbrush","mug","cup","glass","bottle","jar","plate","bowl",
+"spoon","fork","pot","pan","kettle","toaster","chair","table",
+"lamp","vase","plant pot","flower","apple","banana","orange",
+"bread","box","backpack","suitcase","shoe","helmet","bicycle",
+"wheel","car","traffic cone","key","padlock","coin","toy car",
+"ball","remote control","flashlight","battery","bucket",
+"watering can","shovel","rake","hose","rope","chain","ladder",
+"toolbox","shelf","drawer","basket","bin","umbrella","stapler",
+"printer","router","power strip","plug","socket","light switch",
+"thermometer","scale","frying pan","spice jar","cutting board",
+"rolling pin","whisk","spray bottle","toothbrush","towel","comb",
+"clamp","soldering iron","multimeter","game controller",
+"microphone","guitar","paint roller","sponge","plastic container",
+"rock","shell","fishing rod","anchor","pallet","shopping cart",
+"cash register","mailbox","wheelbarrow","lawn mower",
+"door handle","hinge","picture frame","mirror","candle",
+"measuring cup","stool","control panel","valve","gauge",
+"electric motor","pump","fan","radiator","car battery","tire",
+"hubcap","license plate","brick","wood plank","faucet","sink",
+"spray can","tin can","cardboard carton","milk carton",
+"egg carton","cereal box","tomato","carrot","potato","onion",
+"cucumber","mushroom","pumpkin","cactus","succulent","birdhouse",
+"binoculars","telescope","magnifying glass","compass","globe",
+"hourglass","chess piece","dice","playing card","puzzle piece",
+"domino","building block","toy robot","model airplane",
+"skateboard","tennis racket","basketball","whistle","stopwatch",
+"radio","walkie-talkie","flash drive","hard drive","memory card",
+"USB cable","charger","power bank","light bulb","fuse",
+"circuit breaker","wire stripper","welding mask","safety goggles",
+"tool belt","spirit level","chisel","mallet","wood clamp",
+"socket wrench","ratchet","allen key","torque wrench","oil filter",
+"spark plug","brake disc","car jack","air pump","bicycle pump",
+"bike light","bike bell","bike pedal","bike saddle","bike chain",
+"shopping basket","vending machine","locker","bench","streetlight",
+"hydrant","parking meter","construction helmet","cement bag",
+"tile","shower head","thermostat","smoke detector","glass jar",
+"plastic bottle","cheese block","watermelon","pineapple","lemon",
+"seed packet","bird feeder","yo-yo","metronome","vinyl record",
+"adapter","extension cord","LED bulb","measuring tape","file tool",
+"grease gun","oil can","funnel","wheel chock","reflector",
+"rear light","front light","bell"
+];
+
+// These categories are excluded from targets and used to reject photos.
+const PEOPLE=/^(person|people|human|face|man|woman|boy|girl|pedestrian|crowd|child|adult|worker|skier|surfer|rider|player|bride|groom)$/i;
+
+let detector=null,fallback=null,mode="advanced";
+let current=null,score=0,streak=0,best=0,hints=0,locked=true,round=0;
+
+try{best=Number(localStorage.getItem("ispy-best"))||0}catch(e){}
+
+const imgLoad=url=>new Promise((resolve,reject)=>{
+const im=new Image();
+im.crossOrigin="anonymous";
+im.onload=()=>resolve(im);
+im.onerror=reject;
+im.src=url;
 });
 
-const params=n=>({minArea:Math.max(.0015,.012-n*.00035),minScore:Math.max(.38,.52-n*.008),hints:3});
-function chooseType(n){return pick(n<3?["name","letter","color"]:["name","letter","color","size","size"])}
-const loadImg=url=>new Promise((res,rej)=>{const im=new Image();im.crossOrigin="anonymous";im.onload=()=>res(im);im.onerror=rej;im.src=url});
+async function loadScript(src){
+return new Promise((ok,no)=>{
+const s=document.createElement("script");
+s.src=src;s.onload=ok;s.onerror=no;
+document.head.appendChild(s);
+});
+}
 
-const OPEN_LABELS=[
-"hammer","screwdriver","wrench","pliers","drill","saw","scissors","tape measure","ruler","screw","bolt","nut","nail","gear","spring","bearing","pipe","wire","cable","circuit board","computer mouse","keyboard","monitor","phone","camera","headphones","speaker","clock","watch","calculator","book","notebook","pen","pencil","marker","paintbrush","paint can","glue bottle","mug","cup","glass","bottle","jar","plate","bowl","spoon","fork","pot","pan","kettle","toaster","microwave","refrigerator","chair","table","lamp","vase","plant pot","flower","fruit","apple","banana","orange","bread","egg","box","backpack","suitcase","shoe","helmet","bicycle","wheel","car","bus","train","traffic cone","sign","key","padlock","wallet","coin","toy car","ball","teddy bear","remote control","flashlight","battery","fire extinguisher","bucket","watering can","shovel","rake","hose","rope","chain","ladder","toolbox","shelf","drawer","basket","bin","trash can","umbrella","sunglasses","hat","glove","bicycle helmet","bookend","stapler","hole punch","tape dispenser","printer","router","power strip","plug","socket","light switch","thermometer","scale","frying pan","spice jar","cutting board","rolling pin","whisk","ladle","colander","funnel","spray bottle","soap dispenser","toothbrush","toothpaste","shampoo bottle","towel","comb","hairbrush","screwdriver bit","clamp","vice","soldering iron","multimeter","battery charger","joystick","game controller","microphone","guitar","violin","drum","trumpet","paint roller","paint tray","sponge","cloth","plastic container","storage tub","plant","rock","shell","feather","bird feeder","fishing rod","fishing reel","buoy","anchor","life jacket","pallet","shipping container","forklift","shopping cart","shopping basket","cash register","barcode scanner","vending machine","locker","bench","streetlight","mailbox","hydrant","manhole cover","parking meter","wheelbarrow","lawn mower","flower pot","garden hose","sprinkler","ribbon","scarf","belt","door handle","hinge","notepad","envelope","paperclip","binder clip","rubber band","trophy","medal","picture frame","mirror","candle","thermos","measuring cup","stool","step ladder","tool cabinet","industrial machine","control panel","valve","gauge","pressure gauge","electric motor","pump","fan","air conditioner","radiator","car battery","engine part","tire","hubcap","license plate","side mirror","windshield wiper","train wheel","railway track","luggage cart","airport sign","traffic light","street sign","road barrier","construction helmet","safety vest","cement bag","brick","wood plank","tile","pipe wrench","plumbing fitting","faucet","sink","drain","shower head","doorbell","thermostat","smoke detector","spray can","glass jar","plastic bottle","tin can","cardboard carton","milk carton","egg carton","cereal box","snack packet","cereal bowl","fruit basket","bread loaf","cheese block","watermelon","pineapple","lemon","tomato","carrot","potato","onion","cucumber","lettuce","corn","mushroom","pumpkin","plant leaf","cactus","succulent","flower vase","watering bottle","plant mister","garden trowel","pruning shears","seed packet","birdhouse","binoculars","telescope","magnifying glass","compass","map","globe","hourglass","chess piece","dice","playing card","puzzle piece","domino","yo-yo","building block","toy robot","action figure","doll","train model","model airplane","remote control car","skateboard","roller skate","tennis racket","basketball","soccer ball","baseball glove","badminton racket","water bottle","sports bag","whistle","stopwatch","megaphone","music stand","sheet music","metronome","record player","vinyl record","radio","walkie-talkie","flash drive","hard drive","memory card","USB cable","adapter","charger","power bank","extension cord","plug adapter","light bulb","LED bulb","fuse","switch","circuit breaker","electrical meter","solder spool","wire stripper","crimping tool","welding mask","safety goggles","work glove","dust mask","tool belt","measuring tape","spirit level","square ruler","chisel","mallet","wood clamp","vise grip","socket wrench","ratchet","allen key","hex key","torque wrench","grease gun","oil can","oil filter","spark plug","brake disc","car jack","jack stand","wheel chock","air pump","bicycle pump","chain lock","bike light","bike bell","bike pedal","bike saddle","bike handlebar","bike chain","reflector","rear light","front light","bell"
-];
-
-const loadScript=src=>new Promise((resolve,reject)=>{const s=document.createElement("script");s.src=src;s.onload=resolve;s.onerror=reject;document.head.appendChild(s)});
-async function getModel(){
-if(detector||model)return;
-$("brain").textContent="Advanced…";
+async function loadAI(){
+if(detector||fallback)return;
+$("brain").textContent="Loading…";
 try{
 const lib=await import("https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.2");
-detector=await lib.pipeline("zero-shot-object-detection","Xenova/owlvit-base-patch32",{dtype:"q8"});
-brainMode="advanced";$("brain").textContent="Advanced AI"
-}catch(err){
-console.warn("Advanced AI failed to load; trying fallback model.",err);
-brainMode="basic";$("brain").textContent="Basic AI";
+detector=await lib.pipeline(
+"zero-shot-object-detection",
+"Xenova/owlvit-base-patch32",
+{dtype:"q8"}
+);
+mode="advanced";
+$("brain").textContent="Advanced";
+}catch(e){
+console.warn("Advanced model unavailable; trying basic model.",e);
+mode="basic";
 if(!window.tf)await loadScript("https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.22.0/dist/tf.min.js");
 if(!window.cocoSsd)await loadScript("https://cdn.jsdelivr.net/npm/@tensorflow-models/coco-ssd@2.2.3/dist/coco-ssd.min.js");
-if(!window.cocoSsd)throw new Error("Couldn't load the AI models. Check your internet connection.");
-model=await cocoSsd.load()
+fallback=await cocoSsd.load();
+$("brain").textContent="Basic";
 }
 }
+
 function iou(a,b){
-const x1=Math.max(a[0],b[0]),y1=Math.max(a[1],b[1]),x2=Math.min(a[0]+a[2],b[0]+b[2]),y2=Math.min(a[1]+a[3],b[1]+b[3]);
-const inter=Math.max(0,x2-x1)*Math.max(0,y2-y1),union=a[2]*a[3]+b[2]*b[3]-inter;
-return union?inter/union:0
+const x=Math.max(0,Math.min(a[0]+a[2],b[0]+b[2])-Math.max(a[0],b[0]));
+const y=Math.max(0,Math.min(a[1]+a[3],b[1]+b[3])-Math.max(a[1],b[1]));
+const inter=x*y;
+return inter/(a[2]*a[3]+b[2]*b[3]-inter||1);
 }
-function normaliseDetections(raw,img,P){
+
+function tidy(raw,img){
 const area=img.naturalWidth*img.naturalHeight;
-let ds=raw.map(d=>{if(d.box){const b=d.box;return{class:String(d.label||"object").toLowerCase(),score:d.score,bbox:[b.xmin,b.ymin,b.xmax-b.xmin,b.ymax-b.ymin]}}return d}).filter(d=>{
-const r=d.bbox[2]*d.bbox[3]/area,minScore=brainMode==="advanced"?.045:P.minScore;
-return d.score>=minScore&&r>=P.minArea&&r<.86&&d.bbox[2]>8&&d.bbox[3]>8
+let ds=raw.map(d=>d.box?{
+class:String(d.label||"object").toLowerCase(),
+score:d.score,
+bbox:[d.box.xmin,d.box.ymin,d.box.xmax-d.box.xmin,d.box.ymax-d.box.ymin]
+}:d).filter(d=>{
+if(!d.bbox)return false;
+const ratio=d.bbox[2]*d.bbox[3]/area;
+return d.score>(mode==="advanced"?.025:.38)&&ratio>.0015&&ratio<.86&&d.bbox[2]>8&&d.bbox[3]>8;
 }).sort((a,b)=>b.score-a.score);
-const unique=[];
-for(const d of ds){if(!unique.some(u=>u.class===d.class&&iou(u.bbox,d.bbox)>.58))unique.push(d)}
-return unique
+
+const out=[];
+for(const d of ds){
+if(!out.some(u=>u.class===d.class&&iou(u.bbox,d.bbox)>.55))out.push(d);
 }
-async function fetchImg(need,P){
-await getModel();
-for(let a=0;a<18;a++){
+return out;
+}
+
+async function detect(img){
+const labels=["person","people","pedestrian","crowd","human",...OBJECTS];
+let raw=[];
+if(detector){
+raw=await detector(img,labels,{top_k:100,threshold:.025});
+}else{
+raw=await fallback.detect(img,80);
+}
+return tidy(raw,img);
+}
+
+async function getPhoto(){
+await loadAI();
+
+for(let tries=0;tries<25;tries++){
 try{
-const q=pick(QUERIES),off=Math.floor(Math.random()*120);
-const url="https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=50&gsroffset="+off+"&gsrsearch="+encodeURIComponent(q+" filetype:bitmap")+"&prop=imageinfo&iiprop=url|mime&iiurlwidth=900";
-const response=await fetch(url);if(!response.ok)continue;
-const j=await response.json();
-const pages=Object.values((j.query&&j.query.pages)||{}).filter(p=>{
-if(!p.imageinfo||!p.imageinfo[0]||p.imageinfo[0].mime!=="image/jpeg"||!p.imageinfo[0].thumburl)return false;
+const q=pick(QUERIES);
+const url="https://commons.wikimedia.org/w/api.php?action=query&format=json&origin=*&generator=search&gsrnamespace=6&gsrlimit=50&gsroffset="+Math.floor(Math.random()*60)+"&gsrsearch="+encodeURIComponent(q)+"&prop=imageinfo&iiprop=url|mime&iiurlwidth=1000";
+const r=await fetch(url);
+if(!r.ok)continue;
+
+const data=await r.json();
+const pages=Object.values(data.query?.pages||{}).filter(p=>{
+const f=p.imageinfo?.[0];
 const title=(p.title||"").toLowerCase();
-return !/(logo|icon|diagram|map|chart|poster|screenshot|drawing|illustration|clipart|flag|coat.of.arms|collage|specimen|sample|portrait|headshot|selfie|profile.photo)/i.test(title)
+return f?.mime==="image/jpeg"&&f.thumburl&&
+!/portrait|headshot|selfie|family|people|crowd|person|human|wedding|fashion|model|actor|actress|drawing|diagram|logo|poster|screenshot/i.test(title);
 });
 if(!pages.length)continue;
-const ii=pick(pages).imageinfo[0],img=await loadImg(ii.thumburl);
-if(need===0)return{img,dets:[],page:ii.descriptionurl};
-let raw=[];
-if(detector)raw=await detector(img,OPEN_LABELS,{top_k:60,threshold:.035});
-else if(model)raw=await model.detect(img,60);
-const dets=normaliseDetections(raw,img,P);
-const objects=dets.filter(d=>!/(^person$|human|face|man|woman|boy|girl|people)/i.test(d.class));
-const useful=objects.length?objects:dets;
-if(useful.length>=need)return{img,dets:useful,page:ii.descriptionurl}
+
+const info=pick(pages).imageinfo[0];
+const img=await imgLoad(info.thumburl);
+const all=await detect(img);
+const people=all.filter(d=>PEOPLE.test(d.class));
+const objs=all.filter(d=>!PEOPLE.test(d.class));
+const imageArea=img.naturalWidth*img.naturalHeight;
+
+// Reject images when a person is detected. Never use a person as a fallback target.
+const personLikely=people.some(d=>
+d.score>.10&&d.bbox[2]*d.bbox[3]/imageArea>.018
+);
+if(personLikely||objs.length<2)continue;
+
+return{img,objs,page:info.descriptionurl};
 }catch(e){console.debug("Trying another photo",e)}
 }
-throw new Error("No suitable photo found")
+throw Error("Couldn't find a suitable object-only photo. Please try again.");
 }
-function rgbName(r,g,b){
-const mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/510,s=mx===mn?0:(mx-mn)/(255-Math.abs(mx+mn-255));
-let h=0;if(mx!==mn){const d=mx-mn;h=mx===r?((g-b)/d+6)%6:mx===g?(b-r)/d+2:(r-g)/d+4;h*=60}
-if(l<.15)return"black";if(l>.85)return"white";if(s<.2)return l>.6?"light grey":"grey";
-if(h<15||h>=345)return l>.7?"pink":"red";if(h<40)return l<.4?"brown":"orange";if(h<70)return"yellow";if(h<165)return"green";if(h<255)return"blue";if(h<300)return"purple";return"pink"
+
+function loc(d,img){
+const x=(d.bbox[0]+d.bbox[2]/2)/img.naturalWidth;
+const y=(d.bbox[1]+d.bbox[3]/2)/img.naturalHeight;
+return{
+x,y,
+text:(y<.33?"top":y>.67?"bottom":"middle")+" "+
+(x<.33?"left":x>.67?"right":"centre")
+};
 }
-const GW=32,GH=24;
-function colorGrid(img,b){
-const c=document.createElement("canvas"),x=c.getContext("2d");
-if(b){c.width=c.height=16;x.drawImage(img,b[0]+b[2]*.25,b[1]+b[3]*.25,b[2]*.5,b[3]*.5,0,0,16,16)}
-else{c.width=GW;c.height=GH;x.drawImage(img,0,0,GW,GH)}
-const d=x.getImageData(0,0,c.width,c.height).data,names=[];
-if(b){let r=0,g=0,bl=0,k=d.length/4;for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];bl+=d[i+2]}return rgbName(r/k,g/k,bl/k)}
-for(let i=0;i<d.length;i+=4)names.push(rgbName(d[i],d[i+1],d[i+2]));
-return names
+
+async function makePuzzle(){
+for(let attempt=0;attempt<3;attempt++){
+const f=await getPhoto();
+const objs=f.objs.filter(d=>!PEOPLE.test(d.class));
+if(!objs.length)continue;
+
+const type=round<2?"name":pick(["name","letter","small","large","name","letter"]);
+let target,targets=[],prompt;
+
+if(type==="small"||type==="large"){
+const sorted=[...objs].sort((a,b)=>
+a.bbox[2]*a.bbox[3]-b.bbox[2]*b.bbox[3]);
+target=type==="small"?sorted[0]:sorted[sorted.length-1];
+targets=[target];
+prompt="Find the "+(type==="small"?"SMALLEST":"LARGEST")+" detected object.";
+}else{
+target=pick(objs);
+targets=objs.filter(d=>type==="name"?d.class===target.class:d.class[0]===target.class[0]);
+prompt=type==="name"?"Find the "+target.class+".":"Find an object starting with ‘"+target.class[0].toUpperCase()+"’.";
 }
-const posName=(cx,cy)=>(cy<.38?"top":cy>.62?"bottom":"middle")+" "+(cx<.38?"left":cx>.62?"right":"centre");
-function addBoxes(ov,img,arr){
-arr.forEach(d=>{const b=document.createElement("div");b.className="box";b.style.left=d.bbox[0]/img.naturalWidth*100+"%";b.style.top=d.bbox[1]/img.naturalHeight*100+"%";b.style.width=d.bbox[2]/img.naturalWidth*100+"%";b.style.height=d.bbox[3]/img.naturalHeight*100+"%";b.innerHTML="<b></b>";b.firstChild.textContent=d.class;ov.appendChild(b)})
+
+const p=loc(target,f.img);
+const clues=[
+"Look in the "+p.text+" of the picture.",
+"The AI labels the target as ‘"+target.class+"’.",
+"Its box is about "+Math.round(target.bbox[2]/f.img.naturalWidth*100)+"% of the image width."
+];
+return{...f,target,targets,prompt,clues,answer:target.class};
 }
-const inBox=(d,x,y,pad)=>x>=d.bbox[0]-pad&&x<=d.bbox[0]+d.bbox[2]+pad&&y>=d.bbox[1]-pad&&y<=d.bbox[1]+d.bbox[3]+pad;
-async function tryType(t,P){
-const f=await fetchImg(t==="color"?0:t==="size"?3:1,P),img=f.img,W=img.naturalWidth,H=img.naturalHeight,pad=Math.max(W,H)*.015,base={type:t,img,page:f.page,P};
-if(t==="color"){
-const names=colorGrid(img),cnt={};names.forEach(c=>cnt[c]=(cnt[c]||0)+1);
-let opts=Object.keys(cnt).filter(c=>cnt[c]/names.length>.05&&cnt[c]/names.length<.4&&!NEUTRAL.includes(c));
-if(!opts.length)opts=Object.keys(cnt).filter(c=>cnt[c]/names.length>.05&&cnt[c]/names.length<.5);
-if(!opts.length)throw new Error("no color");
-const col=pick(opts);let sx=0,sy=0,k=0;
-names.forEach((c,i)=>{if(c===col){sx+=i%GW;sy+=Math.floor(i/GW);k++}});
-const at=(x,y)=>names[Math.min(GH-1,Math.floor(y/H*GH))*GW+Math.min(GW-1,Math.floor(x/W*GW))];
-return Object.assign(base,{text:"I spy with my little eye... something that is "+col+".",small:"Click on anything "+col+".",answer:"anything "+col,check:(x,y)=>at(x,y)===col,reveal:ov=>names.forEach((c,i)=>{if(c===col){const d=document.createElement("div");d.className="cell";d.style.left=(i%GW)/GW*100+"%";d.style.top=Math.floor(i/GW)/GH*100+"%";d.style.width=100/GW+"%";d.style.height=100/GH+"%";ov.appendChild(d)}}),hintList:["Look in the "+posName(sx/k/GW,sy/k/GH)+" of the picture.","It covers about "+Math.round(cnt[col]/names.length*100)+" percent of the picture."]})
+throw Error("Couldn't make a puzzle");
 }
-const dets=f.dets,np=dets.filter(d=>d.class!=="person"),pool=np.length?np:dets;
-if(t==="size"){
-const sorted=dets.slice().sort((a,b)=>a.bbox[2]*a.bbox[3]-b.bbox[2]*b.bbox[3]),big=Math.random()<.5,tg=big?sorted[sorted.length-1]:sorted[0];
-const cx=(tg.bbox[0]+tg.bbox[2]/2)/W,cy=(tg.bbox[1]+tg.bbox[3]/2)/H;
-return Object.assign(base,{text:"I spy with my little eye... the "+(big?"BIGGEST":"SMALLEST")+" object the robot can detect.",small:"Click on it.",answer:"the "+tg.class,check:(x,y)=>inBox(tg,x,y,pad),reveal:ov=>addBoxes(ov,img,[tg]),hintList:["Look in the "+posName(cx,cy)+" of the picture.","It's mostly "+colorGrid(img,tg.bbox)+"."]})
+
+function say(main,sub=""){
+$("say").textContent=main;
+$("clue").textContent=sub;
 }
-const tg=pick(pool),L=tg.class[0].toUpperCase(),valid=dets.filter(d=>t==="name"?d.class===tg.class:d.class[0].toUpperCase()===L),cx=(tg.bbox[0]+tg.bbox[2]/2)/W,cy=(tg.bbox[1]+tg.bbox[3]/2)/H;
-return Object.assign(base,{text:"I spy with my little eye... "+(t==="name"?"a "+tg.class+".":"an object beginning with "+L+"."),small:"Click on it in the picture.",answer:"the "+tg.class,check:(x,y)=>valid.some(d=>inBox(d,x,y,pad)),reveal:ov=>addBoxes(ov,img,valid),hintList:["It's mostly "+colorGrid(img,tg.bbox)+".","Look in the "+posName(cx,cy)+" of the picture.","Its name has "+tg.class.replace(/ /g,"").length+" letters."]})
+function paint(){
+$("score").textContent=score;
+$("streak").textContent=streak;
+$("best").textContent=best;
 }
-async function buildPuzzle(n){
-const P=params(n),order=[chooseType(n),"size","letter","name","color"].filter((v,i,a)=>a.indexOf(v)===i);
-for(const t of order){try{const p=await tryType(t,P);p.n=n;return p}catch(e){}}
-throw new Error("The robot couldn't find a good picture. Please try again.")
+function busy(on){
+locked=on;
+$("hint").disabled=on;
+$("skip").disabled=on;
 }
-function paint(){$("score").textContent=score;$("streak").textContent=streak;$("best").textContent=best}
-function setBusy(on){busy=on;$("hintBtn").disabled=on;$("skipBtn").disabled=on}
-async function nextRound(){
-$("err").textContent="";$("nextBtn").classList.add("hidden");$("skipBtn").classList.remove("hidden");cur=null;hintsUsed=0;resolved=true;paint();setBusy(true);
-$("game").classList.remove("hidden");$("final").classList.add("hidden");$("credit").textContent="";$("stage").innerHTML='<div class="load">Spyro is searching for a tricky photo...</div>';
+
+async function next(){
+busy(true);
+current=null;
+hints=0;
+$("err").textContent="";
+$("next").classList.add("hidden");
+$("skip").classList.remove("hidden");
+$("hint").classList.remove("hidden");
+$("game").classList.remove("hidden");
+$("stage").innerHTML='<div class="load">Spyro is checking for people and searching for objects…</div>';
+
 try{
-const job=pending&&pending.n===n?pending.p:buildPuzzle(n);pending=null;
-const p=await job;cur=p;resolved=false;$("stage").innerHTML="";$("stage").appendChild(p.img);
-const ov=document.createElement("div");ov.className="ov";ov.id="ov";ov.onclick=clicked;$("stage").appendChild(ov);
-$("credit").innerHTML='Photo from <a href="'+p.page+'" target="_blank" rel="noopener">Wikimedia Commons</a>';
-$("hintBtn").classList.remove("hidden");$("hintBtn").disabled=false;say(p.text,p.small);paint();setBusy(false);
-pending={n:n+1,p:buildPuzzle(n+1)};pending.p.catch(()=>{})
+const p=await makePuzzle();
+current=p;
+locked=false;
+$("stage").innerHTML="";
+$("stage").appendChild(p.img);
+
+const ov=document.createElement("div");
+ov.className="overlay";
+ov.onclick=click;
+$("stage").appendChild(ov);
+
+$("credit").innerHTML='Photo: <a href="'+p.page+'" target="_blank" rel="noopener">Wikimedia Commons</a>';
+say(p.prompt,"Click the object. Use Hint if you need help.");
+busy(false);
 }catch(e){
-$("stage").innerHTML="";$("err").textContent="Couldn't find a suitable photo just now. Try again.";say("My robot brain needs another search!");
-$("nextBtn").textContent="Try again";$("nextBtn").classList.remove("hidden");$("skipBtn").classList.add("hidden");setBusy(false)
+$("stage").innerHTML='<div class="load">No suitable photo found. Try again.</div>';
+$("err").textContent=e.message;
+say("I couldn't find a good object-only photo.","Press Next picture to retry.");
+$("skip").classList.add("hidden");
+$("next").classList.remove("hidden");
+busy(false);
 }
 }
-function mark(x,y,ok){
-const m=document.createElement("div");m.className="mark "+(ok?"ok":"no");m.textContent=ok?"✓":"✕";m.style.left=x/cur.img.naturalWidth*100+"%";m.style.top=y/cur.img.naturalHeight*100+"%";$("ov").appendChild(m)
+
+function mark(x,y,good){
+const el=document.createElement("div");
+el.className="mark";
+el.textContent=good?"✓":"✕";
+el.style.left=x/current.img.naturalWidth*100+"%";
+el.style.top=y/current.img.naturalHeight*100+"%";
+$("stage").appendChild(el);
 }
-function endRound(){resolved=true;cur.reveal($("ov"));$("ov").style.pointerEvents="none";$("hintBtn").classList.add("hidden");$("skipBtn").classList.add("hidden");paint();$("nextBtn").textContent="Next picture";$("nextBtn").classList.remove("hidden")}
-function win(){
-const mult=Math.min(4,1+streak*.25),pts=Math.round(Math.max(3,12-hintsUsed*2)*mult);score+=pts;streak++;
-if(score>best){best=score;try{localStorage.setItem("ispy_best",score)}catch(e){}}
-sfx("ok");say(pick(["Great spot!","Correct! Nice observation.","You found it!","Sharp eyes!","Beep boop, that's right!"])+" +"+pts+" points"+(mult>1?" (streak bonus!)":""));endRound()
+
+function reveal(){
+const ov=$("stage").querySelector(".overlay");
+for(const d of current.targets){
+const b=document.createElement("div");
+b.className="box";
+b.style.left=d.bbox[0]/current.img.naturalWidth*100+"%";
+b.style.top=d.bbox[1]/current.img.naturalHeight*100+"%";
+b.style.width=d.bbox[2]/current.img.naturalWidth*100+"%";
+b.style.height=d.bbox[3]/current.img.naturalHeight*100+"%";
+const label=document.createElement("span");
+label.textContent=d.class;
+b.appendChild(label);
+ov.appendChild(b);
 }
-function lose(why){streak=0;sfx("no");say(why+". The target was "+cur.answer+". Take a closer look at the highlighted area, then keep going!");endRound()}
-function clicked(e){
-if(busy||!cur||resolved)return;
-const r=$("ov").getBoundingClientRect(),x=(e.clientX-r.left)*cur.img.naturalWidth/r.width,y=(e.clientY-r.top)*cur.img.naturalHeight/r.height,hit=cur.check(x,y);mark(x,y,hit);
-if(hit)return win();sfx("no");say(pick(["Not that one — keep looking!","Close, but not quite.","Try a different object.","Nope! Study the details."]))
+ov.style.pointerEvents="none";
 }
-function hint(){
-if(busy||!cur||resolved)return;const list=cur.hintList;if(hintsUsed>=list.length)return;say("Clue: "+list[hintsUsed]);hintsUsed++;if(hintsUsed>=list.length)$("hintBtn").disabled=true
+
+function finish(ok){
+locked=true;
+if(ok){
+const pts=Math.max(3,12-hints*2)*Math.min(4,1+streak*.25);
+score+=Math.round(pts);
+streak++;
+if(score>best){
+best=score;
+try{localStorage.setItem("ispy-best",best)}catch(e){}
 }
-function giveUp(){if(busy||!cur||resolved)return;lose("Skipped")}
-async function start(){
-$("startBox").classList.add("hidden");$("final").classList.add("hidden");n=0;score=0;streak=0;pending=null;cur=null;$("err").textContent="";
-say("Loading my smarter vision brain. The first download may take a while...");setBusy(true);paint();
-try{await getModel()}catch(e){$("err").textContent=e.message;$("startBox").classList.remove("hidden");setBusy(false);return}
-nextRound()
+say("Correct! You found the "+current.answer+". +"+Math.round(pts)+" points!","Great spotting.");
+}else{
+streak=0;
+say("The target was "+current.answer+". Study the highlighted box, then try another picture.");
 }
-$("startBtn").onclick=start;$("again").onclick=start;$("nextBtn").onclick=()=>{n++;nextRound()};$("hintBtn").onclick=hint;$("skipBtn").onclick=giveUp;paint();
+reveal();
+$("hint").classList.add("hidden");
+$("skip").classList.add("hidden");
+$("next").classList.remove("hidden");
+paint();
+}
+
+function click(e){
+if(locked||!current)return;
+const r=$("stage").getBoundingClientRect();
+const x=(e.clientX-r.left)*current.img.naturalWidth/r.width;
+const y=(e.clientY-r.top)*current.img.naturalHeight/r.height;
+const hit=current.targets.some(d=>
+x>=d.bbox[0]-8&&x<=d.bbox[0]+d.bbox[2]+8&&
+y>=d.bbox[1]-8&&y<=d.bbox[1]+d.bbox[3]+8
+);
+mark(x,y,hit);
+if(hit)finish(true);
+else say("Not quite — look carefully.","Try another object.");
+}
+
+$("start").onclick=async()=>{
+score=0;streak=0;round=0;paint();
+$("startrow").classList.add("hidden");
+await next();
+};
+$("next").onclick=async()=>{
+round++;
+$("hint").classList.remove("hidden");
+await next();
+};
+$("skip").onclick=()=>{if(!locked&&current)finish(false)};
+$("hint").onclick=()=>{
+if(locked||!current)return;
+if(hints<current.clues.length){
+say("Hint: "+current.clues[hints++],"Hints reduce points for this puzzle.");
+}
+if(hints>=current.clues.length)$("hint").disabled=true;
+};
+paint();
 </script>
 </body>
 </html>
